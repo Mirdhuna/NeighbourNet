@@ -95,7 +95,7 @@ export default function NeighbourNetLogin() {
           </div>
 
           <h1 className="nn-heading">Welcome back</h1>
-          <p className="nn-subheading">Sign in to see what's available on your street this week.</p>
+          <p className="nn-subheading"> Find what you NEED, and OFFER what you can</p>
 
           <form className="nn-form" onSubmit={handleSubmit} noValidate>
             <div>
