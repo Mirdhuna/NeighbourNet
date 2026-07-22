@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Hammer, BookOpen, Bike, Umbrella } from "lucide-react";
 import "../Css/Login.css";
+import {FcGoogle} from "react-icons/fc";
+import {FaApple} from "react-icons/fa";
 
 function ItemBadge({ icon: Icon, variant, top, left, delay }) {
   return (
@@ -164,15 +166,15 @@ export default function NeighbourNetLogin() {
 
           <div className="nn-oauth-grid">
             <button type="button" className="nn-oauth-btn">
-              <span>🔵</span> Google
+              <span><FcGoogle/></span> Google
             </button>
             <button type="button" className="nn-oauth-btn">
-              <span>⚫</span> Apple
+              <span><FaApple/></span> Apple
             </button>
           </div>
 
           <p className="nn-footer-text">
-            New to the street?{" "}
+            New to the community?{" "}
             <a href="#" className="nn-link">
               Create an account
             </a>
