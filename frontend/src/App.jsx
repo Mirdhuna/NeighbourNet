@@ -1,14 +1,16 @@
-import { useState } from 'react'
-import './App.css'
-import NeighbourNetLogin from './Pages/Login'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import NeighbourNetLogin from "./Pages/Login";
+import NeighbourNetDashboard from "./Pages/Dashboard";
 
 function App() {
-
   return (
-    <>
-      <NeighbourNetLogin/>
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<NeighbourNetLogin />} />
+        <Route path="/dashboard" element={<NeighbourNetDashboard />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
