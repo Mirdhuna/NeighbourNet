@@ -1,19 +1,12 @@
 import {
-  LayoutDashboard,
-  HandHeart,
-  Gift,
-  Search,
-  MessageCircle,
   Bookmark,
-  Bell,
-  User,
-  Settings,
-  Shield,
   MapPin,
   Activity,
   CheckCircle2,
   Sparkles,
+  MessageCircle,
 } from "lucide-react";
+import Sidebar from "../Components/Sidebar";
 import "../Css/Dashboard.css";
 
 export default function NeighbourNetDashboard() {
@@ -65,37 +58,10 @@ export default function NeighbourNetDashboard() {
 
   return (
     <div className="dashboard-page">
-      {/* Sidebar */}
-      <aside className="dashboard-sidebar">
-        <div className="dashboard-sidebar-header">
-          <div className="dashboard-logo-mark">
-            <span>n</span>
-          </div>
-          <div className="dashboard-logo-text">NeighbourNet</div>
-        </div>
-
-        <p className="dashboard-sidebar-tagline">
-          Helping neighbors, one need at a time.
-        </p>
-
-        <nav className="dashboard-sidebar-nav">
-          <SidebarItem label="Dashboard" icon={LayoutDashboard} active />
-          <SidebarItem label="Needs" icon={HandHeart} />
-          <SidebarItem label="Offers" icon={Gift} />
-          <SidebarItem label="Search" icon={Search} />
-          <SidebarItem label="Messages" icon={MessageCircle} />
-          <SidebarItem label="Bookmarks" icon={Bookmark} />
-          <SidebarItem label="Notifications" icon={Bell} />
-          <SidebarItem label="Profile" icon={User} />
-          <SidebarItem label="Settings" icon={Settings} />
-          <SidebarItem label="Admin" icon={Shield} />
-        </nav>
-
-        <button className="dashboard-sidebar-logout">
-          <Settings className="dashboard-sidebar-logout-icon" size={16} />
-          <span>Logout</span>
-        </button>
-      </aside>
+      <Sidebar
+        tagline="Helping neighbors, one need at a time."
+        createTo="/needs/new"
+      />
 
       {/* Main content */}
       <main className="dashboard-main">
@@ -198,6 +164,7 @@ export default function NeighbourNetDashboard() {
               title="No active requests"
               description="Post a new need to get help from neighbors nearby."
               actionLabel="Create need"
+              actionTo="/needs/new"
             />
           </div>
 
@@ -266,31 +233,17 @@ export default function NeighbourNetDashboard() {
   );
 }
 
-// Sidebar navigation item
-function SidebarItem({ label, icon: Icon, active }) {
-  return (
-    <button
-      className={`dashboard-sidebar-item ${
-        active ? "dashboard-sidebar-item--active" : ""
-      }`}
-    >
-      <Icon className="dashboard-sidebar-item-icon" size={18} />
-      <span className="dashboard-sidebar-item-label">{label}</span>
-    </button>
-  );
-}
-
 // Reusable empty state
-function DashboardEmptyState({ title, description, actionLabel }) {
+function DashboardEmptyState({ title, description, actionLabel, actionTo }) {
   return (
     <div className="dashboard-empty">
       <Bookmark className="dashboard-empty-icon" size={20} />
       <h3 className="dashboard-empty-title">{title}</h3>
       <p className="dashboard-empty-text">{description}</p>
       {actionLabel && (
-        <button className="dashboard-empty-action">
+        <a href={actionTo || "#"} className="dashboard-empty-action">
           {actionLabel}
-        </button>
+        </a>
       )}
     </div>
   );

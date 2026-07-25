@@ -1,0 +1,167 @@
+/* ---------------------------------------------------------------------------
+   SIDEBAR — shared across Dashboard, Needs, Offers, etc.
+   The alignment fix: the sidebar is a single flex column pinned to full
+   viewport height. The scrollable middle (logo/stats/nav/extra) takes up
+   remaining space via flex:1, and the action buttons are a separate flex
+   item at the bottom — so they always sit flush at the bottom of the
+   sidebar no matter how much (or little) content is above them, and stay
+   identical from page to page.
+--------------------------------------------------------------------------- */
+
+.sb-root {
+  width: 272px;
+  flex-shrink: 0;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #ffffff;
+  border-right: 1px solid #e5e9e7;
+  padding: 24px 18px;
+  box-sizing: border-box;
+}
+
+.sb-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.sb-scroll::-webkit-scrollbar { width: 5px; }
+.sb-scroll::-webkit-scrollbar-thumb { background: #dde6df; border-radius: 999px; }
+
+/* Logo */
+.sb-top {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sb-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sb-logo-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3f6b5a, #2e5445);
+  color: #fff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sb-logo-text {
+  font-weight: 700;
+  font-size: 15px;
+  color: #1e2a26;
+  line-height: 1.2;
+}
+
+.sb-tagline {
+  font-size: 12px;
+  color: #5c6b65;
+  margin-top: 2px;
+}
+
+/* Nav */
+.sb-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sb-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #5c6b65;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sb-nav-item:hover {
+  background: #f2f5f3;
+  color: #1e2a26;
+}
+
+.sb-nav-item.active {
+  background: #e9f1ec;
+  color: #2e5445;
+}
+
+/* Actions — pinned at the bottom of the flex column */
+.sb-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid #e5e9e7;
+  flex-shrink: 0;
+}
+
+.sb-create-btn,
+.sb-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+.sb-create-btn:active,
+.sb-logout-btn:active {
+  transform: scale(0.98);
+}
+
+.sb-create-btn {
+  background: linear-gradient(135deg, #3f6b5a, #2e5445);
+  color: #fff;
+  box-shadow: 0 8px 18px -8px rgba(46, 84, 69, 0.5);
+}
+.sb-create-btn:hover { opacity: 0.92; }
+
+.sb-logout-btn {
+  background: #fdeeec;
+  color: #d96552;
+}
+.sb-logout-btn:hover { opacity: 0.85; }
+
+/* Responsive: collapse to an off-canvas drawer below 1024px.
+   Add a "sb-open" class to .sb-root (e.g. via a mobile menu toggle
+   in your page header) to slide it into view. */
+@media (max-width: 1024px) {
+  .sb-root {
+    position: fixed;
+    left: 0;
+    top: 0;
+    transform: translateX(-100%);
+    z-index: 60;
+    box-shadow: 0 0 0 100vw rgba(0, 0, 0, 0);
+    transition: transform 0.2s ease;
+  }
+  .sb-root.sb-open {
+    transform: translateX(0);
+    box-shadow: 0 0 0 100vw rgba(30, 42, 38, 0.4);
+  }
+}

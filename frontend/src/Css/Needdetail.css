@@ -1,0 +1,185 @@
+/* ---------------------------------------------------------------------------
+   VIEW NEED (detail page)
+   Reuses .nn-page/.nn-shell/.nn-main from Needs.css for the shell, plus
+   .nn-badges/.nn-badge/.nn-tags/.nn-tag/.nn-avatar from the same file for
+   visual consistency with the Needs list cards.
+--------------------------------------------------------------------------- */
+
+.nd-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .nd-layout { grid-template-columns: 1fr; }
+}
+
+.nd-primary,
+.nd-side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.nd-gallery {
+  height: 260px;
+  border-radius: 18px;
+  background: #eaf1fd;
+  color: #4e7fe0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.nd-card {
+  background: #fff;
+  border: 1px solid #dde6df;
+  border-radius: 18px;
+  padding: 24px;
+}
+
+.nd-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e2a26;
+  margin: 12px 0 10px;
+}
+
+.nd-meta-row {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: #5c6b65;
+  margin-bottom: 16px;
+}
+.nd-meta-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.nd-description {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #1e2a26;
+  margin-bottom: 14px;
+}
+
+.nd-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e2a26;
+  margin: 0 0 16px;
+}
+
+.nd-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.nd-review {
+  padding-bottom: 14px;
+  border-bottom: 1px solid #eef2f0;
+}
+.nd-review:last-child { border-bottom: none; padding-bottom: 0; }
+.nd-review-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 14px;
+  color: #1e2a26;
+}
+.nd-stars { display: inline-flex; gap: 2px; }
+.nd-review p { margin: 0; font-size: 13px; color: #5c6b65; }
+
+/* Right column */
+.nd-owner-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.nd-avatar-lg {
+  width: 48px;
+  height: 48px;
+  font-size: 18px;
+}
+.nd-owner-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e2a26;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nd-verified-icon { color: #4e7fe0; }
+.nd-owner-sub { font-size: 12px; color: #5c6b65; margin-top: 2px; }
+
+.nd-request-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3f6b5a, #2e5445);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+.nd-request-btn:hover { opacity: 0.92; }
+
+.nd-action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.nd-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  border-radius: 10px;
+  border: 1.5px solid #dde6df;
+  background: #fff;
+  color: #5c6b65;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.nd-action-btn:hover { border-color: #3f6b5a; color: #2e5445; }
+.nd-action-btn.active { border-color: #e8a23d; color: #8a5a12; background: #fbf0dc; }
+
+.nd-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.nd-detail-list div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+.nd-detail-list span { color: #5c6b65; }
+.nd-detail-list strong { color: #1e2a26; font-weight: 600; }
+.nd-capitalize { text-transform: capitalize; }
+
+/* Not found state */
+.nd-not-found {
+  text-align: center;
+  padding: 80px 24px;
+}
+.nd-not-found h2 { color: #1e2a26; margin-bottom: 8px; }
+.nd-not-found p { color: #5c6b65; margin-bottom: 20px; }
