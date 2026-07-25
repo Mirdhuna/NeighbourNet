@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar";
 import { getAllOffers } from "../data/Offerstore";
+import { isBookmarked, toggleBookmark } from "../data/Bookmarksstore";
 import "../Css/Offers.css";
 
 const categories = ["All", "Food", "Tools", "Household", "Education", "Equipment"];
@@ -33,6 +34,29 @@ export default function Offers() {
   const [error, setError] = useState("");
 
   const allOffers = getAllOffers();
+
+  // Which offers are currently bookmarked, keyed by id. Seeded from
+  // bookmarksStore on first render, then kept in sync locally on toggle
+  // so the icon updates instantly without re-reading localStorage.
+  const [bookmarkedIds, setBookmarkedIds] = useState(() => {
+    const set = new Set();
+    allOffers.forEach((o) => {
+      if (isBookmarked(o.id, "offer")) set.add(o.id);
+    });
+    return set;
+  });
+
+  const handleToggleBookmark = (e, offer) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const nowBookmarked = toggleBookmark(offer.id, "offer");
+    setBookmarkedIds((prev) => {
+      const next = new Set(prev);
+      if (nowBookmarked) next.add(offer.id);
+      else next.delete(offer.id);
+      return next;
+    });
+  };
 
   const filteredOffers = useMemo(() => {
     let result = [...allOffers];
@@ -261,57 +285,69 @@ export default function Offers() {
             </section>
           ) : (
             <section className={viewMode === "grid" ? "of-card-grid" : "of-card-list"}>
-              {filteredOffers.map((offer) => (
-                <article key={offer.id} className={`of-offer-card ${viewMode}`}>
-                  <div className="of-offer-image">
-                    <div className="of-offer-image-inner">Offer preview</div>
-                  </div>
-
-                  <div className="of-offer-body">
-                    <div className="of-offer-top">
-                      <div className="of-badges">
-                        <span className="of-badge category">{offer.category}</span>
-                        <span className="of-badge condition">{offer.condition}</span>
-                        {offer.verified && (
-                          <span className="of-badge verified">
-                            <ShieldCheck size={12} />
-                            Verified
-                          </span>
-                        )}
-                      </div>
-                      <Bookmark size={18} className="of-bookmark" />
+              {filteredOffers.map((offer) => {
+                const saved = bookmarkedIds.has(offer.id);
+                return (
+                  <article key={offer.id} className={`of-offer-card ${viewMode}`}>
+                    <div className="of-offer-image">
+                      <div className="of-offer-image-inner">Offer preview</div>
                     </div>
 
-                    <h3>{offer.title}</h3>
-                    <p>{offer.description}</p>
-
-                    <div className="of-meta-row">
-                      <span><MapPin size={13} /> {offer.location} • {offer.distance} km</span>
-                      <span><Clock3 size={13} /> {offer.availability}</span>
-                    </div>
-
-                    <div className="of-tags">
-                      {offer.tags.map((tag) => (
-                        <span key={tag} className="of-tag">{tag}</span>
-                      ))}
-                    </div>
-
-                    <div className="of-offer-footer">
-                      <div className="of-owner">
-                        <div className="of-avatar">{offer.ownerInitial}</div>
-                        <div>
-                          <strong>{offer.ownerName}</strong>
-                          <span>{offer.time}</span>
+                    <div className="of-offer-body">
+                      <div className="of-offer-top">
+                        <div className="of-badges">
+                          <span className="of-badge category">{offer.category}</span>
+                          <span className="of-badge condition">{offer.condition}</span>
+                          {offer.verified && (
+                            <span className="of-badge verified">
+                              <ShieldCheck size={12} />
+                              Verified
+                            </span>
+                          )}
                         </div>
+
+                        <button
+                          type="button"
+                          className={`of-bookmark-btn ${saved ? "active" : ""}`}
+                          onClick={(e) => handleToggleBookmark(e, offer)}
+                          aria-label={saved ? "Remove bookmark" : "Save this offer"}
+                          aria-pressed={saved}
+                        >
+                          <Bookmark size={18} className="of-bookmark" fill={saved ? "currentColor" : "none"} />
+                        </button>
                       </div>
 
-                      <Link to={`/offers/${offer.id}`} className="of-view-more">
-                        View Offer
-                      </Link>
+                      <h3>{offer.title}</h3>
+                      <p>{offer.description}</p>
+
+                      <div className="of-meta-row">
+                        <span><MapPin size={13} /> {offer.location} • {offer.distance} km</span>
+                        <span><Clock3 size={13} /> {offer.availability}</span>
+                      </div>
+
+                      <div className="of-tags">
+                        {offer.tags.map((tag) => (
+                          <span key={tag} className="of-tag">{tag}</span>
+                        ))}
+                      </div>
+
+                      <div className="of-offer-footer">
+                        <div className="of-owner">
+                          <div className="of-avatar">{offer.ownerInitial}</div>
+                          <div>
+                            <strong>{offer.ownerName}</strong>
+                            <span>{offer.time}</span>
+                          </div>
+                        </div>
+
+                        <Link to={`/offers/${offer.id}`} className="of-view-more">
+                          View Offer
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </section>
           )}
         </main>

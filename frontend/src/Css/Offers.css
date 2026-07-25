@@ -389,3 +389,23 @@
   border-radius: 8px;
 }
 .of-view-more:hover { background: #dcebe3; }
+
+/* Offers.css — bookmark button */
+.of-bookmark-btn {
+  border: none;
+  background: none;
+  padding: 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #5c6b65;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.of-bookmark-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+.of-bookmark-btn.active {
+  color: #e8a23d;
+}

@@ -33,13 +33,23 @@ const navItems = [
  * Shared app sidebar.
  *
  * Props:
- *  - tagline:   small text under the logo (optional)
- *  - top:       extra content rendered above the nav, e.g. quick stats (optional)
- *  - extra:     extra content rendered below the nav, e.g. an AI suggestions box (optional)
- *  - createTo:  route the "Create Need" button navigates to (default "/needs/new")
- *  - onLogout:  called when Logout is clicked (default: navigate to "/login")
+ *  - tagline:    small text under the logo (optional)
+ *  - top:        extra content rendered above the nav, e.g. quick stats (optional)
+ *  - extra:      extra content rendered below the nav, e.g. an AI suggestions box (optional)
+ *  - createTo:   route the "Create Need" button navigates to (default "/needs/new")
+ *  - hideCreate: when true, hides the "Create" button entirely (default false).
+ *                Use this on pages like Messages where "Create Need" doesn't apply
+ *                and the page has its own primary action instead.
+ *  - onLogout:   called when Logout is clicked (default: navigate to "/login")
  */
-export default function Sidebar({ tagline, top, extra, createTo = "/needs/new", onLogout }) {
+export default function Sidebar({
+  tagline,
+  top,
+  extra,
+  createTo = "/needs/new",
+  hideCreate = false,
+  onLogout,
+}) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -84,14 +94,16 @@ export default function Sidebar({ tagline, top, extra, createTo = "/needs/new", 
       </div>
 
       <div className="sb-actions">
-        <button
-          type="button"
-          className="sb-create-btn"
-          onClick={() => navigate(createTo)}
-        >
-          <Plus size={16} />
-          Create
-        </button>
+        {!hideCreate && (
+          <button
+            type="button"
+            className="sb-create-btn"
+            onClick={() => navigate(createTo)}
+          >
+            <Plus size={16} />
+            Create
+          </button>
+        )}
 
         <button type="button" className="sb-logout-btn" onClick={handleLogout}>
           <LogOut size={16} />

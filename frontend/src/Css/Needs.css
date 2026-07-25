@@ -763,3 +763,23 @@ body {
     width: 100%;
   }
 }
+
+/* Needs.css — bookmark button */
+.nn-bookmark-btn {
+  border: none;
+  background: none;
+  padding: 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #5c6b65; /* match your existing .nn-bookmark icon color if it was set elsewhere */
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.nn-bookmark-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+.nn-bookmark-btn.active {
+  color: #e8a23d; /* filled/saved state */
+}

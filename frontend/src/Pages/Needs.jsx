@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar";
 import { getAllNeeds } from "../data/Needsstore";
+import { isBookmarked, toggleBookmark } from "../data/Bookmarksstore";
 import "../Css/Needs.css";
 
 const categories = ["All", "Food", "Medicine", "Transport", "Tools", "Household", "Education"];
@@ -33,6 +34,29 @@ export default function Needs() {
   const [error, setError] = useState("");
 
   const allNeeds = getAllNeeds();
+
+  // Which needs are currently bookmarked, keyed by id. Seeded from
+  // bookmarksStore on first render, then kept in sync locally on toggle
+  // so the icon updates instantly without re-reading localStorage.
+  const [bookmarkedIds, setBookmarkedIds] = useState(() => {
+    const set = new Set();
+    allNeeds.forEach((n) => {
+      if (isBookmarked(n.id, "need")) set.add(n.id);
+    });
+    return set;
+  });
+
+  const handleToggleBookmark = (e, need) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const nowBookmarked = toggleBookmark(need.id, "need");
+    setBookmarkedIds((prev) => {
+      const next = new Set(prev);
+      if (nowBookmarked) next.add(need.id);
+      else next.delete(need.id);
+      return next;
+    });
+  };
 
   const filteredNeeds = useMemo(() => {
     let result = [...allNeeds];
@@ -54,7 +78,7 @@ export default function Needs() {
     result = result.filter((item) => item.distance <= Number(radius));
 
     if (sortBy === "distance") result.sort((a, b) => a.distance - b.distance);
-    else result.sort((a, b) => b.id - a.id);
+    else result.sort((a, b) => (a.id < b.id ? 1 : -1));
 
     return result;
   }, [allNeeds, query, category, urgency, verifiedOnly, radius, sortBy]);
@@ -275,57 +299,69 @@ export default function Needs() {
             </section>
           ) : (
             <section className={viewMode === "grid" ? "nn-card-grid" : "nn-card-list"}>
-              {filteredNeeds.map((need) => (
-                <article key={need.id} className={`nn-need-card ${viewMode}`}>
-                  <div className="nn-need-image">
-                    <div className="nn-need-image-inner">Need preview</div>
-                  </div>
-
-                  <div className="nn-need-body">
-                    <div className="nn-need-top">
-                      <div className="nn-badges">
-                        <span className="nn-badge category">{need.category}</span>
-                        <span className={`nn-badge urgency ${need.urgency}`}>{need.urgency}</span>
-                        {need.verified && (
-                          <span className="nn-badge verified">
-                            <ShieldCheck size={12} />
-                            Verified
-                          </span>
-                        )}
-                      </div>
-                      <Bookmark size={18} className="nn-bookmark" />
+              {filteredNeeds.map((need) => {
+                const saved = bookmarkedIds.has(need.id);
+                return (
+                  <article key={need.id} className={`nn-need-card ${viewMode}`}>
+                    <div className="nn-need-image">
+                      <div className="nn-need-image-inner">Need preview</div>
                     </div>
 
-                    <h3>{need.title}</h3>
-                    <p>{need.description}</p>
-
-                    <div className="nn-meta-row">
-                      <span><MapPin size={13} /> {need.location} • {need.distance} km</span>
-                      <span><Clock3 size={13} /> {need.duration}</span>
-                    </div>
-
-                    <div className="nn-tags">
-                      {need.tags.map((tag) => (
-                        <span key={tag} className="nn-tag">{tag}</span>
-                      ))}
-                    </div>
-
-                    <div className="nn-need-footer">
-                      <div className="nn-owner">
-                        <div className="nn-avatar">{need.requesterInitial}</div>
-                        <div>
-                          <strong>{need.requesterName}</strong>
-                          <span>{need.time}</span>
+                    <div className="nn-need-body">
+                      <div className="nn-need-top">
+                        <div className="nn-badges">
+                          <span className="nn-badge category">{need.category}</span>
+                          <span className={`nn-badge urgency ${need.urgency}`}>{need.urgency}</span>
+                          {need.verified && (
+                            <span className="nn-badge verified">
+                              <ShieldCheck size={12} />
+                              Verified
+                            </span>
+                          )}
                         </div>
+
+                        <button
+                          type="button"
+                          className={`nn-bookmark-btn ${saved ? "active" : ""}`}
+                          onClick={(e) => handleToggleBookmark(e, need)}
+                          aria-label={saved ? "Remove bookmark" : "Save this need"}
+                          aria-pressed={saved}
+                        >
+                          <Bookmark size={18} className="nn-bookmark" fill={saved ? "currentColor" : "none"} />
+                        </button>
                       </div>
 
-                      <Link to={`/needs/${need.id}`} className="nn-view-more">
-                        View Need
-                      </Link>
+                      <h3>{need.title}</h3>
+                      <p>{need.description}</p>
+
+                      <div className="nn-meta-row">
+                        <span><MapPin size={13} /> {need.location} • {need.distance} km</span>
+                        <span><Clock3 size={13} /> {need.duration}</span>
+                      </div>
+
+                      <div className="nn-tags">
+                        {need.tags.map((tag) => (
+                          <span key={tag} className="nn-tag">{tag}</span>
+                        ))}
+                      </div>
+
+                      <div className="nn-need-footer">
+                        <div className="nn-owner">
+                          <div className="nn-avatar">{need.requesterInitial}</div>
+                          <div>
+                            <strong>{need.requesterName}</strong>
+                            <span>{need.time}</span>
+                          </div>
+                        </div>
+
+                        <Link to={`/needs/${need.id}`} className="nn-view-more">
+                          View Need
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </section>
           )}
         </main>
