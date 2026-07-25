@@ -44,7 +44,7 @@ export default function Sidebar({ tagline, top, extra, createTo = "/needs/new", 
 
   const handleLogout = () => {
     if (onLogout) onLogout();
-    else navigate("/login");
+    else navigate("/");
   };
 
   return (
@@ -90,7 +90,7 @@ export default function Sidebar({ tagline, top, extra, createTo = "/needs/new", 
           onClick={() => navigate(createTo)}
         >
           <Plus size={16} />
-          Create Need
+          Create
         </button>
 
         <button type="button" className="sb-logout-btn" onClick={handleLogout}>
