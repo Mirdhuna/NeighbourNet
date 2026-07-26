@@ -9,6 +9,7 @@ import OfferDetail from "./Pages/Offerdetail";
 import CreateOffer from "./Pages/Createoffer";
 import Messages from "./Pages/Messages";
 import Bookmarks from "./Pages/Bookmarks";
+import Profile from "./Pages/Profile";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/messages" element={<Messages/>}/>
         <Route path="/messages/:id" element={<Messages/>}/>
         <Route path="/bookmarks" element={<Bookmarks/>}/>
+        <Route path="/profile" element={<Profile/>}/>
       </Routes>
     </BrowserRouter>
   );

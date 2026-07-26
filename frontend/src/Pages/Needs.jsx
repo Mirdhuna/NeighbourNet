@@ -19,7 +19,7 @@ import { getAllNeeds } from "../data/Needsstore";
 import { isBookmarked, toggleBookmark } from "../data/Bookmarksstore";
 import "../Css/Needs.css";
 
-const categories = ["All", "Food", "Medicine", "Transport", "Tools", "Household", "Education"];
+const categories = ["All", "Medicine", "Transport", "Tools", "Household", "Education"];
 const urgencies = ["All", "low", "medium", "high", "emergency"];
 
 export default function Needs() {

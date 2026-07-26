@@ -20,7 +20,7 @@ const navItems = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/needs", label: "Needs", icon: HandHeart },
   { to: "/offers", label: "Offers", icon: Gift },
-  { to: "/search", label: "Search", icon: Search },
+  //{ to: "/search", label: "Search", icon: Search },
   { to: "/messages", label: "Messages", icon: MessageCircle },
   { to: "/bookmarks", label: "Bookmarks", icon: Bookmark },
   { to: "/notifications", label: "Notifications", icon: Bell },
