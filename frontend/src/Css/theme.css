@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;500;600&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Colors - Muted Professional Palette */
+  --nn-bg-main: #f4f6f9;
+  --nn-card-bg: rgba(255, 255, 255, 0.92);
+  --nn-card-solid: #ffffff;
+  --nn-surface-subtle: #f0f3f7;
+  
+  --nn-ink: #222b38;
+  --nn-ink-soft: #64748b;
+  --nn-line: #cbd5e1;
+  --nn-line-light: #e2e8f0;
+  
+  /* Primary Accent Colors */
+  --nn-primary: #4a6fa5;
+  --nn-primary-dark: #3b5b88;
+  --nn-primary-soft: rgba(74, 111, 165, 0.12);
+  
+  /* Secondary Accent Colors */
+  --nn-sage: #537a70;
+  --nn-sage-soft: rgba(83, 122, 112, 0.12);
+  --nn-warm-accent: #c47c5d;
+  --nn-warm-soft: rgba(196, 124, 93, 0.12);
+  
+  /* Status Colors */
+  --nn-success: #2e7d32;
+  --nn-success-bg: rgba(46, 125, 50, 0.1);
+  --nn-warning: #b45309;
+  --nn-warning-bg: rgba(180, 83, 9, 0.1);
+  --nn-error: #c94a4a;
+  --nn-error-bg: rgba(201, 74, 74, 0.1);
+
+  /* Geometry & Shadows */
+  --nn-radius-sm: 8px;
+  --nn-radius-md: 14px;
+  --nn-radius-lg: 20px;
+  --nn-radius-full: 9999px;
+  
+  --nn-shadow-sm: 0 4px 12px rgba(34, 43, 56, 0.04);
+  --nn-shadow-md: 0 12px 32px -8px rgba(34, 43, 56, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--nn-ink);
+  background: var(--nn-bg-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}

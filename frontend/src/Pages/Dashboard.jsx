@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import {
   Bookmark,
   MapPin,
@@ -241,9 +242,9 @@ function DashboardEmptyState({ title, description, actionLabel, actionTo }) {
       <h3 className="dashboard-empty-title">{title}</h3>
       <p className="dashboard-empty-text">{description}</p>
       {actionLabel && (
-        <a href={actionTo || "#"} className="dashboard-empty-action">
+        <Link to={actionTo || "#"} className="dashboard-empty-action">
           {actionLabel}
-        </a>
+        </Link>
       )}
     </div>
   );

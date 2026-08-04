@@ -1,128 +1,198 @@
-/* ---------------------------------------------------------------------------
-   CREATE NEED FORM
-   Reuses the .nn-page / .nn-shell / .nn-main layout shell from Needs.css,
-   so it sits alongside the sidebar exactly like the Needs list page.
---------------------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;500;600&family=Inter:wght@400;500;600;700&display=swap');
 
+/* ==========================================================================
+   CSS VARIABLES (ALIGNED WITH ADMIN.CSS SYSTEM)
+   ========================================================================== */
+:root {
+  --ad-bg: linear-gradient(135deg, #d1dbee, #f7fafd);
+  --ad-card: rgba(255, 255, 255, 0.9);
+  --ad-line: rgba(183, 193, 207, 0.7);
+  --ad-ink: #273044;
+  --ad-soft: #7a8699;
+  --ad-blue: #6a8fb8;
+  --ad-blue-2: #9ec3eb;
+  --ad-peach: #f5d4c8;
+  --ad-green: #2e7d32;
+  --ad-radius: 24px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   BACK NAVIGATION BUTTON
+   ========================================================================== */
 .nf-back {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  margin-bottom: 16px;
+  gap: 0.45rem;
+  background: var(--ad-card);
+  border: 1px solid var(--ad-line);
+  border-radius: 14px;
+  padding: 0.55rem 0.95rem;
   font-size: 13px;
-  font-weight: 500;
-  color: #5c6b65;
+  font-weight: 600;
+  color: var(--ad-ink);
   text-decoration: none;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 15px rgba(39, 48, 68, 0.05);
+  margin-bottom: 0.5rem;
+  transition: all 0.18s ease;
+  width: fit-content;
 }
-.nf-back:hover { color: #1e2a26; }
 
+.nf-back:hover {
+  background: #ffffff;
+  border-color: var(--ad-blue);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   FORM CONTAINER CARD
+   ========================================================================== */
 .nf-card {
-  background: #fff;
-  border: 1px solid #dde6df;
-  border-radius: 18px;
-  padding: 28px;
+  background: var(--ad-card);
+  border: 1px solid var(--ad-line);
+  border-radius: var(--ad-radius);
+  padding: 1.75rem;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  max-width: 680px;
+  gap: 1.25rem;
+  max-width: 720px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 18px 45px -16px rgba(39, 48, 68, 0.12);
 }
 
+/* Error Banner */
 .nf-error {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: #fae8e4;
-  color: #d96552;
-  padding: 12px 16px;
-  border-radius: 12px;
+  gap: 0.65rem;
+  background: rgba(252, 165, 165, 0.25);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #b91c1c;
+  padding: 0.85rem 1rem;
+  border-radius: 16px;
   font-size: 13px;
   font-weight: 500;
 }
 
+/* ==========================================================================
+   FORM FIELDS & LABELS
+   ========================================================================== */
 .nf-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0.45rem;
+  width: 100%;
 }
 
 .nf-label {
   font-size: 13px;
   font-weight: 600;
-  color: #1e2a26;
+  color: var(--ad-ink);
 }
 
 .nf-input,
 .nf-textarea,
 .nf-select {
-  font-family: inherit;
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
-  color: #1e2a26;
-  background: #fbfaf6;
-  border: 1.5px solid #dde6df;
-  border-radius: 10px;
-  padding: 10px 14px;
+  color: var(--ad-ink);
+  background: #f7fafd;
+  border: 1px solid var(--ad-line);
+  border-radius: 16px;
+  padding: 0.75rem 1rem;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: all 0.15s ease;
   width: 100%;
-  box-sizing: border-box;
 }
 
 .nf-input:focus,
 .nf-textarea:focus,
 .nf-select:focus {
-  border-color: #3f6b5a;
+  border-color: var(--ad-blue);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(158, 195, 235, 0.22);
 }
 
-.nf-textarea { resize: vertical; }
+.nf-textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.5;
+}
 
+/* Icon Enclosed Input Field */
 .nf-input-icon {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: #fbfaf6;
-  border: 1.5px solid #dde6df;
-  border-radius: 10px;
-  padding: 10px 14px;
-  color: #5c6b65;
+  gap: 0.65rem;
+  background: #f7fafd;
+  border: 1px solid var(--ad-line);
+  border-radius: 16px;
+  padding: 0.75rem 1rem;
+  color: var(--ad-soft);
+  transition: all 0.15s ease;
 }
+
+.nf-input-icon:focus-within {
+  border-color: var(--ad-blue);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(158, 195, 235, 0.22);
+}
+
 .nf-input-icon input {
   flex: 1;
   border: none;
   background: transparent;
   outline: none;
   font-size: 14px;
-  color: #1e2a26;
+  color: var(--ad-ink);
+  font-family: inherit;
+  padding: 0;
 }
 
+/* Two Column Layout Grid */
 .nf-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-@media (max-width: 560px) {
-  .nf-grid-2 { grid-template-columns: 1fr; }
+  gap: 1rem;
 }
 
+@media (max-width: 580px) {
+  .nf-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   PHOTO DROPZONE & INPUT
+   ========================================================================== */
 .nf-dropzone {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 28px;
-  border: 1.5px dashed #dde6df;
-  border-radius: 12px;
-  color: #5c6b65;
+  gap: 0.5rem;
+  padding: 1.75rem;
+  border: 2px dashed var(--ad-line);
+  border-radius: 18px;
+  color: var(--ad-soft);
   font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   text-align: center;
-  background: #f5f8f6;
+  background: #f7fafd;
+  transition: all 0.15s ease;
 }
-.nf-dropzone:hover { border-color: #3f6b5a; color: #2e5445; }
+
+.nf-dropzone:hover {
+  border-color: var(--ad-blue);
+  color: var(--ad-ink);
+  background: #ffffff;
+}
 
 .nf-file-input {
   position: absolute;
@@ -132,19 +202,34 @@
   overflow: hidden;
 }
 
+/* ==========================================================================
+   SUBMIT BUTTON
+   ========================================================================== */
 .nf-submit {
-  margin-top: 4px;
-  padding: 13px 20px;
+  margin-top: 0.5rem;
+  padding: 0.9rem 1.25rem;
   border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #3f6b5a, #2e5445);
-  color: #fff;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--ad-blue), #5a7aa8);
+  color: #ffffff;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 10px 20px -10px rgba(46, 84, 69, 0.55);
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 10px 24px rgba(106, 143, 184, 0.28);
+  transition: transform 0.18s ease, opacity 0.18s ease;
 }
-.nf-submit:hover { opacity: 0.92; }
-.nf-submit:active { transform: scale(0.99); }
-.nf-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.nf-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+
+.nf-submit:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.nf-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}

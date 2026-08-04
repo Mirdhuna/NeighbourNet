@@ -23,7 +23,7 @@ const navItems = [
   //{ to: "/search", label: "Search", icon: Search },
   { to: "/messages", label: "Messages", icon: MessageCircle },
   { to: "/bookmarks", label: "Bookmarks", icon: Bookmark },
-  { to: "/notifications", label: "Notifications", icon: Bell },
+  //{ to: "/notifications", label: "Notifications", icon: Bell },
   { to: "/profile", label: "Profile", icon: User },
   { to: "/settings", label: "Settings", icon: Settings },
   { to: "/admin", label: "Admin", icon: Shield },

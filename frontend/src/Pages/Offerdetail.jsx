@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar";
 import { getOfferById } from "../data/Offerstore";
+import { isBookmarked, toggleBookmark } from "../data/Bookmarksstore";
 import "../Css/Offers.css";
 import "../Css/Offerdetail.css";
 
@@ -28,7 +29,7 @@ export default function OfferDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const offer = getOfferById(id);
-  const [bookmarked, setBookmarked] = useState(false);
+  const [bookmarked, setBookmarked] = useState(() => (offer ? isBookmarked(offer.id, "offer") : false));
 
   if (!offer) {
     return (
@@ -147,7 +148,7 @@ export default function OfferDetail() {
                 <div className="od-action-row">
                   <button
                     className={`od-action-btn ${bookmarked ? "active" : ""}`}
-                    onClick={() => setBookmarked((b) => !b)}
+                    onClick={() => setBookmarked(toggleBookmark(offer.id, "offer"))}
                   >
                     <Bookmark size={15} fill={bookmarked ? "#e8a23d" : "none"} />
                     Save

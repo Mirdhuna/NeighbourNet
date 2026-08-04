@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Hammer, BookOpen, Bike, Umbrella } from "lucide-react";
 import "../Css/Login.css";
 import {FcGoogle} from "react-icons/fc";
@@ -16,6 +17,7 @@ function ItemBadge({ icon: Icon, variant, top, left, delay }) {
 }
 
 export default function NeighbourNetLogin() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -36,7 +38,20 @@ export default function NeighbourNetLogin() {
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
-    setTimeout(() => setLoading(false), 1400);
+
+    // Simulate an auth call. Swap this timeout out for a real API call
+    // when the backend is wired up — on success, persist the session and
+    // navigate into the app.
+    setTimeout(() => {
+      try {
+        const storage = remember ? window.localStorage : window.sessionStorage;
+        storage.setItem("neighbornet_session", JSON.stringify({ email, loggedInAt: Date.now() }));
+      } catch {
+        // storage unavailable (e.g. private mode) — still let the user in
+      }
+      setLoading(false);
+      navigate("/dashboard");
+    }, 1400);
   };
 
   return (

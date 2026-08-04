@@ -62,6 +62,18 @@ export default function Messages() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeId]);
 
+  // On first mount with no conversation id in the URL, the first
+  // conversation is selected by default but was never actually marked as
+  // read or reflected in the URL. Do that once here.
+  useEffect(() => {
+    if (!routeId && activeId) {
+      markRead(activeId);
+      refreshConversations();
+      navigate(`/messages/${activeId}`, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     scrollRef.current?.scrollTo({
       top: scrollRef.current.scrollHeight,

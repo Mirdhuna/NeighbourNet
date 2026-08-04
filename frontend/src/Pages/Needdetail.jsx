@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar";
 import { getNeedById } from "../data/Needsstore";
+import { isBookmarked, toggleBookmark } from "../data/Bookmarksstore";
 import "../Css/Needs.css";
 import "../Css/Needdetail.css";
 
@@ -27,7 +28,7 @@ export default function NeedDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const need = getNeedById(id);
-  const [bookmarked, setBookmarked] = useState(false);
+  const [bookmarked, setBookmarked] = useState(() => (need ? isBookmarked(need.id, "need") : false));
 
   if (!need) {
     return (
@@ -145,7 +146,7 @@ export default function NeedDetail() {
                 <div className="nd-action-row">
                   <button
                     className={`nd-action-btn ${bookmarked ? "active" : ""}`}
-                    onClick={() => setBookmarked((b) => !b)}
+                    onClick={() => setBookmarked(toggleBookmark(need.id, "need"))}
                   >
                     <Bookmark size={15} fill={bookmarked ? "#e8a23d" : "none"} />
                     Save

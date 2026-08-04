@@ -1,185 +1,352 @@
-/* ---------------------------------------------------------------------------
-   VIEW NEED (detail page)
-   Reuses .nn-page/.nn-shell/.nn-main from Needs.css for the shell, plus
-   .nn-badges/.nn-badge/.nn-tags/.nn-tag/.nn-avatar from the same file for
-   visual consistency with the Needs list cards.
---------------------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;500;600&family=Inter:wght@400;500;600;700&display=swap');
 
+/* ==========================================================================
+   CSS VARIABLES (ALIGNED WITH ADMIN.CSS SYSTEM)
+   ========================================================================== */
+:root {
+  --ad-bg: linear-gradient(135deg, #d1dbee, #f7fafd);
+  --ad-card: rgba(255, 255, 255, 0.9);
+  --ad-line: rgba(183, 193, 207, 0.7);
+  --ad-ink: #273044;
+  --ad-soft: #7a8699;
+  --ad-blue: #6a8fb8;
+  --ad-blue-2: #9ec3eb;
+  --ad-peach: #f5d4c8;
+  --ad-green: #2e7d32;
+  --ad-radius: 24px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   NAVIGATION & BACK BUTTON
+   ========================================================================== */
+.nf-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: transparent;
+  border: 1px solid var(--ad-line);
+  border-radius: 14px;
+  padding: 0.55rem 0.95rem;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ad-ink);
+  text-decoration: none;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  background: var(--ad-card);
+  box-shadow: 0 4px 15px rgba(39, 48, 68, 0.05);
+  margin-bottom: 0.5rem;
+  transition: all 0.18s ease;
+  width: fit-content;
+}
+
+.nf-back:hover {
+  background: #ffffff;
+  border-color: var(--ad-blue);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   DETAIL GRID LAYOUT
+   ========================================================================== */
 .nd-layout {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 24px;
+  grid-template-columns: 2fr 1.05fr;
+  gap: 1.25rem;
   align-items: start;
 }
-@media (max-width: 900px) {
-  .nd-layout { grid-template-columns: 1fr; }
+
+@media (max-width: 960px) {
+  .nd-layout {
+    grid-template-columns: 1fr;
+  }
 }
 
 .nd-primary,
 .nd-side {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1.25rem;
 }
 
+/* ==========================================================================
+   MEDIA GALLERY & CARDS
+   ========================================================================== */
 .nd-gallery {
-  height: 260px;
-  border-radius: 18px;
-  background: #eaf1fd;
-  color: #4e7fe0;
+  height: 240px;
+  border-radius: var(--ad-radius);
+  background: linear-gradient(135deg, rgba(158, 195, 235, 0.28), rgba(245, 212, 200, 0.25));
+  border: 1px solid var(--ad-line);
+  color: var(--ad-blue);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 18px 45px -16px rgba(39, 48, 68, 0.12);
 }
 
 .nd-card {
-  background: #fff;
-  border: 1px solid #dde6df;
-  border-radius: 18px;
-  padding: 24px;
+  background: var(--ad-card);
+  border: 1px solid var(--ad-line);
+  border-radius: var(--ad-radius);
+  padding: 1.5rem;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 18px 45px -16px rgba(39, 48, 68, 0.12);
 }
 
 .nd-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1e2a26;
-  margin: 12px 0 10px;
+  font-family: 'Fraunces', serif;
+  font-size: clamp(1.5rem, 3.5vw, 2.1rem);
+  font-weight: 600;
+  color: var(--ad-ink);
+  margin: 0.75rem 0 0.5rem;
+  line-height: 1.25;
 }
 
 .nd-meta-row {
   display: flex;
-  gap: 18px;
+  gap: 1.25rem;
   flex-wrap: wrap;
-  font-size: 12px;
-  color: #5c6b65;
-  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--ad-soft);
+  margin-bottom: 1.25rem;
 }
+
 .nd-meta-row span {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 0.35rem;
 }
 
 .nd-description {
-  font-size: 14px;
+  font-size: 14.5px;
   line-height: 1.7;
-  color: #1e2a26;
-  margin-bottom: 14px;
+  color: var(--ad-ink);
+  margin-bottom: 1.25rem;
 }
 
 .nd-section-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1e2a26;
-  margin: 0 0 16px;
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ad-ink);
+  margin: 0 0 1rem;
 }
 
+/* ==========================================================================
+   REVIEWS & FEEDBACK SECTION
+   ========================================================================== */
 .nd-reviews {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 1rem;
 }
+
 .nd-review {
-  padding-bottom: 14px;
-  border-bottom: 1px solid #eef2f0;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(183, 193, 207, 0.45);
 }
-.nd-review:last-child { border-bottom: none; padding-bottom: 0; }
+
+.nd-review:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
 .nd-review-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 0.35rem;
   font-size: 14px;
-  color: #1e2a26;
+  color: var(--ad-ink);
 }
-.nd-stars { display: inline-flex; gap: 2px; }
-.nd-review p { margin: 0; font-size: 13px; color: #5c6b65; }
 
-/* Right column */
+.nd-review-top strong {
+  font-weight: 600;
+}
+
+.nd-stars {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.nd-review p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ad-soft);
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   SIDEBAR & ACTION PANEL
+   ========================================================================== */
 .nd-owner-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 18px;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
 }
+
 .nd-avatar-lg {
-  width: 48px;
-  height: 48px;
+  width: 50px;
+  height: 50px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--ad-blue-2), var(--ad-blue));
+  color: #ffffff;
+  font-family: 'Fraunces', serif;
   font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px -4px rgba(106, 143, 184, 0.35);
 }
+
 .nd-owner-name {
   font-size: 15px;
   font-weight: 700;
-  color: #1e2a26;
+  color: var(--ad-ink);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.35rem;
 }
-.nd-verified-icon { color: #4e7fe0; }
-.nd-owner-sub { font-size: 12px; color: #5c6b65; margin-top: 2px; }
+
+.nd-verified-icon {
+  color: var(--ad-blue);
+}
+
+.nd-owner-sub {
+  font-size: 12px;
+  color: var(--ad-soft);
+  margin-top: 2px;
+}
 
 .nd-request-btn {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 12px 16px;
+  gap: 0.5rem;
+  padding: 0.9rem 1.25rem;
   border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #3f6b5a, #2e5445);
-  color: #fff;
-  font-size: 14px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--ad-blue), #5a7aa8);
+  color: #ffffff;
+  font-size: 14.5px;
   font-weight: 600;
   cursor: pointer;
-  margin-bottom: 12px;
+  margin-bottom: 0.85rem;
+  box-shadow: 0 10px 24px rgba(106, 143, 184, 0.28);
+  transition: transform 0.18s ease, opacity 0.18s ease;
 }
-.nd-request-btn:hover { opacity: 0.92; }
+
+.nd-request-btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
 
 .nd-action-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
 }
+
 .nd-action-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 4px;
-  padding: 10px 6px;
-  border-radius: 10px;
-  border: 1.5px solid #dde6df;
-  background: #fff;
-  color: #5c6b65;
-  font-size: 11px;
-  font-weight: 500;
+  padding: 0.75rem 0.5rem;
+  border-radius: 14px;
+  border: 1px solid var(--ad-line);
+  background: #f7fafd;
+  color: var(--ad-soft);
+  font-size: 11.5px;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
-.nd-action-btn:hover { border-color: #3f6b5a; color: #2e5445; }
-.nd-action-btn.active { border-color: #e8a23d; color: #8a5a12; background: #fbf0dc; }
 
+.nd-action-btn:hover {
+  background: #ffffff;
+  color: var(--ad-ink);
+  border-color: var(--ad-blue);
+}
+
+.nd-action-btn.active {
+  border-color: rgba(245, 212, 200, 0.8);
+  color: #c2410c;
+  background: rgba(245, 212, 200, 0.25);
+}
+
+/* Metadata Key-Value List */
 .nd-detail-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.85rem;
 }
+
 .nd-detail-list div {
   display: flex;
   justify-content: space-between;
-  font-size: 13px;
+  align-items: center;
+  font-size: 13.5px;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(183, 193, 207, 0.35);
 }
-.nd-detail-list span { color: #5c6b65; }
-.nd-detail-list strong { color: #1e2a26; font-weight: 600; }
-.nd-capitalize { text-transform: capitalize; }
 
-/* Not found state */
+.nd-detail-list div:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.nd-detail-list span {
+  color: var(--ad-soft);
+}
+
+.nd-detail-list strong {
+  color: var(--ad-ink);
+  font-weight: 600;
+}
+
+.nd-capitalize {
+  text-transform: capitalize;
+}
+
+/* ==========================================================================
+   NOT FOUND STATE
+   ========================================================================== */
 .nd-not-found {
   text-align: center;
-  padding: 80px 24px;
+  padding: 5rem 1.5rem;
+  background: var(--ad-card);
+  border: 1px solid var(--ad-line);
+  border-radius: var(--ad-radius);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 18px 45px -16px rgba(39, 48, 68, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-.nd-not-found h2 { color: #1e2a26; margin-bottom: 8px; }
-.nd-not-found p { color: #5c6b65; margin-bottom: 20px; }
+
+.nd-not-found h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  color: var(--ad-ink);
+  margin-bottom: 0.5rem;
+}
+
+.nd-not-found p {
+  color: var(--ad-soft);
+  margin-bottom: 1.5rem;
+  font-size: 14px;
+}
