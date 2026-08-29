@@ -31,6 +31,19 @@ DROP TYPE IF EXISTS response_status CASCADE;
 DROP TYPE IF EXISTS visibility_type CASCADE;
 
 -- ============================================================================
+-- REMOVE OLD GEOLOCATION ROUTINES / SIGNATURES
+-- ============================================================================
+DROP FUNCTION IF EXISTS fn_haversine_km(NUMERIC, NUMERIC, NUMERIC, NUMERIC);
+DROP FUNCTION IF EXISTS fn_search_needs_frontend(NUMERIC, NUMERIC, NUMERIC, TEXT, VARCHAR, VARCHAR, BOOLEAN, VARCHAR);
+DROP FUNCTION IF EXISTS fn_search_offers_frontend(NUMERIC, NUMERIC, NUMERIC, TEXT, VARCHAR, VARCHAR, BOOLEAN, VARCHAR);
+DROP FUNCTION IF EXISTS fn_get_need_frontend(BIGINT, NUMERIC, NUMERIC);
+DROP FUNCTION IF EXISTS fn_get_offer_frontend(BIGINT, NUMERIC, NUMERIC);
+DROP PROCEDURE IF EXISTS sp_register_user(VARCHAR, VARCHAR, VARCHAR, TEXT, VARCHAR, VARCHAR, NUMERIC, NUMERIC, NUMERIC, BIGINT);
+DROP PROCEDURE IF EXISTS sp_update_profile(BIGINT, VARCHAR, VARCHAR, VARCHAR, TEXT, VARCHAR, NUMERIC, NUMERIC, NUMERIC);
+DROP PROCEDURE IF EXISTS sp_post_need(BIGINT, VARCHAR, VARCHAR, TEXT, VARCHAR, VARCHAR, VARCHAR, NUMERIC, NUMERIC, NUMERIC, TEXT, TEXT[], BIGINT);
+DROP PROCEDURE IF EXISTS sp_post_offer(BIGINT, VARCHAR, VARCHAR, TEXT, VARCHAR, VARCHAR, VARCHAR, VARCHAR, NUMERIC, NUMERIC, NUMERIC, TEXT, TEXT[], BIGINT);
+
+-- ============================================================================
 -- 2. ENUM TYPES
 -- ============================================================================
 CREATE TYPE post_status AS ENUM
@@ -57,8 +70,6 @@ CREATE TABLE users (
     phone_number      VARCHAR(20),
     bio               TEXT,
     address           VARCHAR(255),
-    latitude          NUMERIC(9,6),
-    longitude         NUMERIC(9,6),
     preferred_radius  NUMERIC(6,2) NOT NULL DEFAULT 5.0
                       CHECK (preferred_radius > 0),
     trust_score       NUMERIC(5,2) NOT NULL DEFAULT 0.00
@@ -71,7 +82,6 @@ CREATE TABLE users (
 );
 
 CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_location ON users(latitude, longitude);
 CREATE INDEX idx_users_active ON users(is_active);
 
 -- ============================================================================
@@ -108,8 +118,6 @@ CREATE TABLE needs (
                      CHECK (urgency IN ('low','medium','high','emergency')),
     duration         VARCHAR(100) NOT NULL DEFAULT 'Flexible',
     location         VARCHAR(255) NOT NULL,
-    latitude         NUMERIC(9,6),
-    longitude        NUMERIC(9,6),
     search_radius    NUMERIC(6,2) NOT NULL DEFAULT 5.0
                      CHECK (search_radius > 0),
     tags             TEXT[] NOT NULL DEFAULT '{}',
@@ -125,7 +133,6 @@ CREATE INDEX idx_needs_user ON needs(user_id);
 CREATE INDEX idx_needs_category ON needs(category_id);
 CREATE INDEX idx_needs_status ON needs(status);
 CREATE INDEX idx_needs_urgency ON needs(urgency);
-CREATE INDEX idx_needs_location ON needs(latitude, longitude);
 CREATE INDEX idx_needs_created ON needs(created_date DESC);
 
 -- ============================================================================
@@ -143,8 +150,6 @@ CREATE TABLE offers (
     pickup_option    VARCHAR(30) NOT NULL DEFAULT 'Pickup only'
                      CHECK (pickup_option IN ('Pickup only','Can deliver','Either')),
     location         VARCHAR(255) NOT NULL,
-    latitude         NUMERIC(9,6),
-    longitude        NUMERIC(9,6),
     search_radius    NUMERIC(6,2) NOT NULL DEFAULT 5.0
                      CHECK (search_radius > 0),
     tags             TEXT[] NOT NULL DEFAULT '{}',
@@ -160,7 +165,6 @@ CREATE INDEX idx_offers_user ON offers(user_id);
 CREATE INDEX idx_offers_category ON offers(category_id);
 CREATE INDEX idx_offers_status ON offers(status);
 CREATE INDEX idx_offers_condition ON offers(condition);
-CREATE INDEX idx_offers_location ON offers(latitude, longitude);
 CREATE INDEX idx_offers_created ON offers(created_date DESC);
 
 -- ============================================================================
@@ -271,7 +275,9 @@ CREATE TABLE user_settings (
     public_profile   BOOLEAN NOT NULL DEFAULT TRUE,
     show_location    BOOLEAN NOT NULL DEFAULT TRUE,
     language         VARCHAR(30) NOT NULL DEFAULT 'English',
-    theme            VARCHAR(20) NOT NULL DEFAULT 'light',
+    dark_mode        BOOLEAN NOT NULL DEFAULT FALSE,
+    profile_visibility VARCHAR(20) NOT NULL DEFAULT 'Everyone'
+                     CHECK (profile_visibility IN ('Everyone','Only Friends','Only Me')),
     updated_date     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -309,48 +315,7 @@ CREATE INDEX idx_activity_user
     ON activity_history(user_id, created_date DESC);
 
 -- ============================================================================
--- 15. Haversine distance
--- ============================================================================
-CREATE OR REPLACE FUNCTION fn_haversine_km(
-    p_lat1 NUMERIC,
-    p_lng1 NUMERIC,
-    p_lat2 NUMERIC,
-    p_lng2 NUMERIC
-)
-RETURNS NUMERIC
-LANGUAGE plpgsql
-IMMUTABLE
-AS $$
-DECLARE
-    v_r NUMERIC := 6371.0;
-    v_dlat NUMERIC;
-    v_dlng NUMERIC;
-    v_a NUMERIC;
-    v_c NUMERIC;
-BEGIN
-    IF p_lat1 IS NULL OR p_lng1 IS NULL
-       OR p_lat2 IS NULL OR p_lng2 IS NULL THEN
-        RETURN NULL;
-    END IF;
-
-    v_dlat := radians(p_lat2 - p_lat1);
-    v_dlng := radians(p_lng2 - p_lng1);
-
-    v_a :=
-        sin(v_dlat / 2)^2
-        + cos(radians(p_lat1))
-        * cos(radians(p_lat2))
-        * sin(v_dlng / 2)^2;
-
-    v_a := LEAST(1.0, GREATEST(0.0, v_a));
-    v_c := 2 * atan2(sqrt(v_a), sqrt(1 - v_a));
-
-    RETURN ROUND(v_r * v_c, 3);
-END;
-$$;
-
--- ============================================================================
--- 16. UPDATED DATE TRIGGER
+-- 15. UPDATED DATE TRIGGER
 -- ============================================================================
 CREATE OR REPLACE FUNCTION fn_set_updated_date()
 RETURNS TRIGGER
@@ -413,8 +378,6 @@ CREATE OR REPLACE PROCEDURE sp_register_user(
     IN p_password TEXT,
     IN p_phone VARCHAR DEFAULT NULL,
     IN p_address VARCHAR DEFAULT NULL,
-    IN p_latitude NUMERIC DEFAULT NULL,
-    IN p_longitude NUMERIC DEFAULT NULL,
     IN p_radius NUMERIC DEFAULT 5.0,
     INOUT p_user_id BIGINT DEFAULT NULL
 )
@@ -447,7 +410,7 @@ BEGIN
 
     INSERT INTO users(
         name, username, email, password_hash, phone_number,
-        address, latitude, longitude, preferred_radius
+        address, preferred_radius
     )
     VALUES (
         trim(p_name),
@@ -456,8 +419,6 @@ BEGIN
         crypt(p_password, gen_salt('bf')),
         p_phone,
         p_address,
-        p_latitude,
-        p_longitude,
         COALESCE(p_radius, 5.0)
     )
     RETURNING user_id INTO p_user_id;
@@ -518,8 +479,6 @@ RETURNS TABLE(
     phone VARCHAR,
     bio TEXT,
     location VARCHAR,
-    latitude NUMERIC,
-    longitude NUMERIC,
     verified BOOLEAN,
     trust_score NUMERIC,
     joined_at TIMESTAMP,
@@ -535,8 +494,6 @@ AS $$
         u.phone_number,
         u.bio,
         u.address,
-        u.latitude,
-        u.longitude,
         u.is_verified,
         u.trust_score,
         u.joined_date,
@@ -553,8 +510,6 @@ CREATE OR REPLACE PROCEDURE sp_update_profile(
     IN p_address VARCHAR DEFAULT NULL,
     IN p_bio TEXT DEFAULT NULL,
     IN p_email VARCHAR DEFAULT NULL,
-    IN p_latitude NUMERIC DEFAULT NULL,
-    IN p_longitude NUMERIC DEFAULT NULL,
     IN p_radius NUMERIC DEFAULT NULL
 )
 LANGUAGE plpgsql
@@ -581,8 +536,6 @@ BEGIN
         address = COALESCE(p_address, address),
         bio = COALESCE(p_bio, bio),
         email = COALESCE(lower(trim(p_email)), email),
-        latitude = COALESCE(p_latitude, latitude),
-        longitude = COALESCE(p_longitude, longitude),
         preferred_radius = COALESCE(p_radius, preferred_radius)
     WHERE user_id = p_user_id;
 
@@ -628,7 +581,8 @@ RETURNS TABLE(
     public_profile BOOLEAN,
     show_location BOOLEAN,
     language VARCHAR,
-    theme VARCHAR
+    dark_mode BOOLEAN,
+    visibility VARCHAR
 )
 LANGUAGE sql
 AS $$
@@ -644,12 +598,15 @@ AS $$
         s.public_profile,
         s.show_location,
         s.language,
-        s.theme
+        s.dark_mode,
+        s.profile_visibility
     FROM users u
     JOIN user_settings s ON s.user_id = u.user_id
     WHERE u.user_id = p_user_id;
 $$;
 
+-- Settings.jsx field names: name, username, email, phone, darkMode,
+-- profilePublic, language, visibility, emailAlerts, pushAlerts, smsAlerts.
 CREATE OR REPLACE PROCEDURE sp_update_settings(
     IN p_user_id BIGINT,
     IN p_push_alerts BOOLEAN DEFAULT NULL,
@@ -658,11 +615,17 @@ CREATE OR REPLACE PROCEDURE sp_update_settings(
     IN p_public_profile BOOLEAN DEFAULT NULL,
     IN p_show_location BOOLEAN DEFAULT NULL,
     IN p_language VARCHAR DEFAULT NULL,
-    IN p_theme VARCHAR DEFAULT NULL
+    IN p_dark_mode BOOLEAN DEFAULT NULL,
+    IN p_visibility VARCHAR DEFAULT NULL
 )
 LANGUAGE plpgsql
 AS $$
 BEGIN
+    IF p_visibility IS NOT NULL
+       AND p_visibility NOT IN ('Everyone','Only Friends','Only Me') THEN
+        RAISE EXCEPTION 'Invalid profile visibility: %', p_visibility;
+    END IF;
+
     INSERT INTO user_settings(user_id)
     VALUES (p_user_id)
     ON CONFLICT (user_id) DO NOTHING;
@@ -674,7 +637,8 @@ BEGIN
         public_profile = COALESCE(p_public_profile, public_profile),
         show_location = COALESCE(p_show_location, show_location),
         language = COALESCE(p_language, language),
-        theme = COALESCE(p_theme, theme)
+        dark_mode = COALESCE(p_dark_mode, dark_mode),
+        profile_visibility = COALESCE(p_visibility, profile_visibility)
     WHERE user_id = p_user_id;
 END;
 $$;
@@ -710,8 +674,6 @@ CREATE OR REPLACE PROCEDURE sp_post_need(
     IN p_urgency VARCHAR DEFAULT 'medium',
     IN p_duration VARCHAR DEFAULT 'Flexible',
     IN p_location VARCHAR DEFAULT NULL,
-    IN p_latitude NUMERIC DEFAULT NULL,
-    IN p_longitude NUMERIC DEFAULT NULL,
     IN p_radius NUMERIC DEFAULT 5.0,
     IN p_photo TEXT DEFAULT NULL,
     IN p_tags TEXT[] DEFAULT NULL,
@@ -756,12 +718,12 @@ BEGIN
 
     INSERT INTO needs(
         user_id, category_id, title, description, urgency, duration,
-        location, latitude, longitude, search_radius, tags, photo
+        location, search_radius, tags, photo
     )
     VALUES (
         p_user_id, v_category_id, trim(p_title), trim(p_description),
         p_urgency, COALESCE(NULLIF(trim(p_duration), ''), 'Flexible'),
-        trim(p_location), p_latitude, p_longitude,
+        trim(p_location),
         COALESCE(p_radius, 5.0),
         COALESCE(p_tags, ARRAY[trim(p_category_name)]::TEXT[]),
         p_photo
@@ -786,8 +748,6 @@ CREATE OR REPLACE PROCEDURE sp_post_offer(
     IN p_availability VARCHAR DEFAULT 'Flexible',
     IN p_pickup_option VARCHAR DEFAULT 'Pickup only',
     IN p_location VARCHAR DEFAULT NULL,
-    IN p_latitude NUMERIC DEFAULT NULL,
-    IN p_longitude NUMERIC DEFAULT NULL,
     IN p_radius NUMERIC DEFAULT 5.0,
     IN p_photo TEXT DEFAULT NULL,
     IN p_tags TEXT[] DEFAULT NULL,
@@ -836,15 +796,14 @@ BEGIN
 
     INSERT INTO offers(
         user_id, category_id, title, description, condition,
-        availability, pickup_option, location, latitude, longitude,
-        search_radius, tags, photo
+        availability, pickup_option, location, search_radius, tags, photo
     )
     VALUES (
         p_user_id, v_category_id, trim(p_title), trim(p_description),
         p_condition,
         COALESCE(NULLIF(trim(p_availability), ''), 'Flexible'),
         p_pickup_option,
-        trim(p_location), p_latitude, p_longitude,
+        trim(p_location),
         COALESCE(p_radius, 5.0),
         COALESCE(p_tags, ARRAY[trim(p_category_name)]::TEXT[]),
         p_photo
@@ -870,8 +829,6 @@ SELECT
     n.urgency,
     n.duration,
     n.location,
-    n.latitude,
-    n.longitude,
     n.search_radius AS radius,
     n.tags,
     n.photo,
@@ -900,8 +857,6 @@ SELECT
     o.availability,
     o.pickup_option,
     o.location,
-    o.latitude,
-    o.longitude,
     o.search_radius AS radius,
     o.tags,
     o.photo,
@@ -920,8 +875,6 @@ LEFT JOIN categories c ON c.category_id = o.category_id;
 -- 27. SEARCH NEEDS - matches Needs.jsx fields and filters
 -- ============================================================================
 CREATE OR REPLACE FUNCTION fn_search_needs_frontend(
-    p_user_lat NUMERIC DEFAULT NULL,
-    p_user_lng NUMERIC DEFAULT NULL,
     p_radius NUMERIC DEFAULT 5,
     p_query TEXT DEFAULT NULL,
     p_category VARCHAR DEFAULT NULL,
@@ -956,10 +909,7 @@ AS $$
         n.urgency,
         n.duration,
         n.location,
-        COALESCE(
-            fn_haversine_km(p_user_lat, p_user_lng, n.latitude, n.longitude),
-            0
-        ) AS distance,
+        NULL::NUMERIC AS distance,
         n.tags,
         u.name,
         upper(left(trim(u.name), 1)),
@@ -993,25 +943,13 @@ AS $$
             NOT COALESCE(p_verified_only, FALSE)
             OR u.is_verified = TRUE
       )
-      AND (
-            p_user_lat IS NULL OR p_user_lng IS NULL
-            OR fn_haversine_km(p_user_lat, p_user_lng, n.latitude, n.longitude)
-               <= COALESCE(p_radius, 5)
-      )
-    ORDER BY
-        CASE WHEN lower(COALESCE(p_sort,'latest')) = 'distance'
-             THEN COALESCE(fn_haversine_km(
-                    p_user_lat,p_user_lng,n.latitude,n.longitude),0)
-        END ASC,
-        n.created_date DESC;
+    ORDER BY n.created_date DESC;
 $$;
 
 -- ============================================================================
 -- 28. SEARCH OFFERS - matches Offers.jsx fields and filters
 -- ============================================================================
 CREATE OR REPLACE FUNCTION fn_search_offers_frontend(
-    p_user_lat NUMERIC DEFAULT NULL,
-    p_user_lng NUMERIC DEFAULT NULL,
     p_radius NUMERIC DEFAULT 5,
     p_query TEXT DEFAULT NULL,
     p_category VARCHAR DEFAULT NULL,
@@ -1048,10 +986,7 @@ AS $$
         o.availability,
         o.pickup_option,
         o.location,
-        COALESCE(
-            fn_haversine_km(p_user_lat, p_user_lng, o.latitude, o.longitude),
-            0
-        ) AS distance,
+        NULL::NUMERIC AS distance,
         o.tags,
         u.name,
         upper(left(trim(u.name), 1)),
@@ -1085,26 +1020,14 @@ AS $$
             NOT COALESCE(p_verified_only, FALSE)
             OR u.is_verified = TRUE
       )
-      AND (
-            p_user_lat IS NULL OR p_user_lng IS NULL
-            OR fn_haversine_km(p_user_lat, p_user_lng, o.latitude, o.longitude)
-               <= COALESCE(p_radius, 5)
-      )
-    ORDER BY
-        CASE WHEN lower(COALESCE(p_sort,'latest')) = 'distance'
-             THEN COALESCE(fn_haversine_km(
-                    p_user_lat,p_user_lng,o.latitude,o.longitude),0)
-        END ASC,
-        o.created_date DESC;
+    ORDER BY o.created_date DESC;
 $$;
 
 -- ============================================================================
 -- 29. GET SINGLE NEED / OFFER FOR DETAIL PAGES
 -- ============================================================================
 CREATE OR REPLACE FUNCTION fn_get_need_frontend(
-    p_need_id BIGINT,
-    p_user_lat NUMERIC DEFAULT NULL,
-    p_user_lng NUMERIC DEFAULT NULL
+    p_need_id BIGINT
 )
 RETURNS TABLE(
     id BIGINT,
@@ -1134,8 +1057,7 @@ AS $$
         n.urgency,
         n.duration,
         n.location,
-        COALESCE(fn_haversine_km(
-            p_user_lat,p_user_lng,n.latitude,n.longitude),0),
+        NULL::NUMERIC,
         n.tags,
         u.name,
         upper(left(trim(u.name),1)),
@@ -1151,9 +1073,7 @@ AS $$
 $$;
 
 CREATE OR REPLACE FUNCTION fn_get_offer_frontend(
-    p_offer_id BIGINT,
-    p_user_lat NUMERIC DEFAULT NULL,
-    p_user_lng NUMERIC DEFAULT NULL
+    p_offer_id BIGINT
 )
 RETURNS TABLE(
     id BIGINT,
@@ -1185,8 +1105,7 @@ AS $$
         o.availability,
         o.pickup_option,
         o.location,
-        COALESCE(fn_haversine_km(
-            p_user_lat,p_user_lng,o.latitude,o.longitude),0),
+        NULL::NUMERIC,
         o.tags,
         u.name,
         upper(left(trim(u.name),1)),
@@ -1956,23 +1875,14 @@ AS $$
         n.need_id,
         n.title,
         u.name,
-        COALESCE(fn_haversine_km(
-            me.latitude, me.longitude, n.latitude, n.longitude
-        ),0),
+        NULL::NUMERIC,
         n.location,
         n.urgency
     FROM needs n
     JOIN users u ON u.user_id = n.user_id
-    JOIN users me ON me.user_id = p_user_id
     WHERE n.status = 'active'
       AND n.user_id <> p_user_id
       AND u.is_active = TRUE
-      AND (
-          me.latitude IS NULL OR me.longitude IS NULL
-          OR fn_haversine_km(
-                me.latitude,me.longitude,n.latitude,n.longitude
-             ) <= COALESCE(p_radius,5)
-      )
     ORDER BY n.created_date DESC
     LIMIT 10;
 $$;
@@ -1995,9 +1905,7 @@ AS $$
         o.offer_id,
         o.title,
         u.name,
-        COALESCE(fn_haversine_km(
-            me.latitude, me.longitude, o.latitude, o.longitude
-        ),0),
+        NULL::NUMERIC,
         o.location,
         CASE
             WHEN o.pickup_option = 'Can deliver' THEN 'Service'
@@ -2005,16 +1913,9 @@ AS $$
         END
     FROM offers o
     JOIN users u ON u.user_id = o.user_id
-    JOIN users me ON me.user_id = p_user_id
     WHERE o.status = 'active'
       AND o.user_id <> p_user_id
       AND u.is_active = TRUE
-      AND (
-          me.latitude IS NULL OR me.longitude IS NULL
-          OR fn_haversine_km(
-                me.latitude,me.longitude,o.latitude,o.longitude
-             ) <= COALESCE(p_radius,5)
-      )
     ORDER BY o.created_date DESC
     LIMIT 10;
 $$;
@@ -2231,13 +2132,13 @@ BEGIN
     CALL sp_register_user(
         'Asha Menon', 'asha', 'asha@example.com', 'pass123',
         '9876543210', 'Coimbatore',
-        11.004100, 76.961000, 5.0, v_asha_id
+        5.0, v_asha_id
     );
 
     CALL sp_register_user(
         'Ravi Kumar', 'ravi', 'ravi@example.com', 'pass456',
         '9123456780', 'Coimbatore',
-        11.010000, 76.970000, 5.0, v_ravi_id
+        5.0, v_ravi_id
     );
 
     UPDATE users
@@ -2253,7 +2154,7 @@ BEGIN
         'medium',
         '2 days',
         'Coimbatore',
-        11.004100, 76.961000, 5.0,
+        5.0,
         NULL,
         ARRAY['Tools']::TEXT[],
         v_need_id
@@ -2267,7 +2168,7 @@ BEGIN
         'emergency',
         'Flexible',
         'Coimbatore',
-        11.010000, 76.970000, 5.0,
+        5.0,
         NULL,
         ARRAY['Transport']::TEXT[],
         v_need_id_2
@@ -2283,7 +2184,7 @@ BEGIN
         'Weekends',
         'Can deliver',
         'Coimbatore',
-        11.010000, 76.970000, 5.0,
+        5.0,
         NULL,
         ARRAY['Equipment']::TEXT[],
         v_offer_id
@@ -2298,7 +2199,7 @@ BEGIN
         'Evenings',
         'Pickup only',
         'Coimbatore',
-        11.004100, 76.961000, 5.0,
+        5.0,
         NULL,
         ARRAY['Household']::TEXT[],
         v_offer_id_2
@@ -2327,8 +2228,8 @@ ORDER BY object_name;
 
 SELECT id, title, category, urgency, location, distance,
        requester_name, requester_initial, verified, "time"
-FROM fn_search_needs_frontend(NULL, NULL, 5, NULL, 'All', 'All', FALSE, 'latest');
+FROM fn_search_needs_frontend(5, NULL, 'All', 'All', FALSE, 'latest');
 
 SELECT id, title, category, condition, availability, pickup_option,
        location, distance, owner_name, owner_initial, verified, "time"
-FROM fn_search_offers_frontend(NULL, NULL, 5, NULL, 'All', 'All', FALSE, 'latest');
+FROM fn_search_offers_frontend(5, NULL, 'All', 'All', FALSE, 'latest');
