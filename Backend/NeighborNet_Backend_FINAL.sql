@@ -1,26 +1,9 @@
 /*
 ===============================================================================
-NEIGHBORNET - FRONTEND ALIGNED POSTGRESQL BACKEND
-PostgreSQL 18.x / pgAdmin 4
-
-Purpose:
-  This is a replacement backend schema designed from the current React JSX
-  frontend in frontend.pdf.
-
-Important:
-  1. Run this script while connected to the NeighbourNet database.
-  2. This is a CLEAN-REBUILD script and drops the old NeighborNet tables/types.
-     BACK UP existing data before running it if you need that data.
-  3. The current JSX still imports local files such as Needsstore.js,
-     Offerstore.js, Bookmarksstore.js, Profilestore.js, Settingsstore.js and
-     messagesStore.js. SQL by itself cannot make those stores call PostgreSQL.
-     This database provides the matching persistent model and functions; the
-     stores/API layer must later call these functions.
 ===============================================================================
 */
-
+-- EXTENSION THAT PROVIDE CRYPTOGRAPHIC FUNCTIONS.
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
 -- ============================================================================
 -- 1. CLEAN REBUILD
 -- ============================================================================
@@ -960,7 +943,7 @@ RETURNS TABLE(
     requester_initial TEXT,
     verified BOOLEAN,
     trust_score NUMERIC,
-    time TEXT,
+    "time" TEXT,
     status post_status
 )
 LANGUAGE sql
@@ -1051,7 +1034,7 @@ RETURNS TABLE(
     owner_initial TEXT,
     verified BOOLEAN,
     trust_score NUMERIC,
-    time TEXT,
+    "time" TEXT,
     status post_status
 )
 LANGUAGE sql
@@ -1137,7 +1120,7 @@ RETURNS TABLE(
     requester_initial TEXT,
     verified BOOLEAN,
     trust_score NUMERIC,
-    time TEXT,
+    "time" TEXT,
     photo TEXT,
     status post_status
 )
@@ -1187,7 +1170,7 @@ RETURNS TABLE(
     owner_initial TEXT,
     verified BOOLEAN,
     trust_score NUMERIC,
-    time TEXT,
+    "time" TEXT,
     photo TEXT,
     status post_status
 )
@@ -1347,7 +1330,7 @@ RETURNS TABLE(
     description TEXT,
     location VARCHAR,
     distance NUMERIC,
-    time TEXT,
+    "time" TEXT,
     urgency VARCHAR,
     condition VARCHAR,
     category VARCHAR,
@@ -1408,7 +1391,7 @@ AS $$
     LEFT JOIN categories c ON c.category_id = o.category_id
     WHERE b.user_id = p_user_id
 
-    ORDER BY time DESC;
+    ORDER BY 7 DESC;
 $$;
 
 -- ============================================================================
@@ -2229,111 +2212,123 @@ INSERT INTO categories(category_name, category_description) VALUES
 ON CONFLICT (category_name) DO NOTHING;
 
 -- ============================================================================
--- 44. OPTIONAL DEMO USERS
--- Passwords are for local development only.
 -- ============================================================================
-CALL sp_register_user(
-    'Asha Menon', 'asha', 'asha@example.com', 'pass123',
-    '9876543210', 'Coimbatore',
-    11.004100, 76.961000, 5.0, NULL
-);
-
-CALL sp_register_user(
-    'Ravi Kumar', 'ravi', 'ravi@example.com', 'pass456',
-    '9123456780', 'Coimbatore',
-    11.010000, 76.970000, 5.0, NULL
-);
-
-UPDATE users
-SET is_verified = TRUE
-WHERE username IN ('asha','ravi');
-
+-- 44-45. OPTIONAL DEMO DATA - SINGLE PL/pgSQL BLOCK
+-- PostgreSQL does not allow subqueries directly as CALL arguments, and
+-- procedures with INOUT parameters require writable variables.  This block
+-- handles both requirements safely in one execution.
 -- ============================================================================
--- 45. DEMO POSTS
+DO $$
+DECLARE
+    v_asha_id BIGINT := NULL;
+    v_ravi_id BIGINT := NULL;
+    v_need_id BIGINT := NULL;
+    v_need_id_2 BIGINT := NULL;
+    v_offer_id BIGINT := NULL;
+    v_offer_id_2 BIGINT := NULL;
+BEGIN
+    -- Register demo users and capture their generated IDs.
+    CALL sp_register_user(
+        'Asha Menon', 'asha', 'asha@example.com', 'pass123',
+        '9876543210', 'Coimbatore',
+        11.004100, 76.961000, 5.0, v_asha_id
+    );
+
+    CALL sp_register_user(
+        'Ravi Kumar', 'ravi', 'ravi@example.com', 'pass456',
+        '9123456780', 'Coimbatore',
+        11.010000, 76.970000, 5.0, v_ravi_id
+    );
+
+    UPDATE users
+    SET is_verified = TRUE
+    WHERE user_id IN (v_asha_id, v_ravi_id);
+
+    -- Create demo needs.
+    CALL sp_post_need(
+        v_asha_id,
+        'Tools',
+        'Borrow a drill for weekend DIY',
+        'Looking for a drill for a small home project this weekend.',
+        'medium',
+        '2 days',
+        'Coimbatore',
+        11.004100, 76.961000, 5.0,
+        NULL,
+        ARRAY['Tools']::TEXT[],
+        v_need_id
+    );
+
+    CALL sp_post_need(
+        v_ravi_id,
+        'Transport',
+        'Emergency ride to hospital',
+        'Need urgent local transport support.',
+        'emergency',
+        'Flexible',
+        'Coimbatore',
+        11.010000, 76.970000, 5.0,
+        NULL,
+        ARRAY['Transport']::TEXT[],
+        v_need_id_2
+    );
+
+    -- Create demo offers.
+    CALL sp_post_offer(
+        v_ravi_id,
+        'Equipment',
+        'Laptop repair & setup',
+        'Can help with basic laptop repair and setup.',
+        'Good',
+        'Weekends',
+        'Can deliver',
+        'Coimbatore',
+        11.010000, 76.970000, 5.0,
+        NULL,
+        ARRAY['Equipment']::TEXT[],
+        v_offer_id
+    );
+
+    CALL sp_post_offer(
+        v_asha_id,
+        'Household',
+        'Borrow a cycle for evening ride',
+        'A cycle is available for a short neighborhood ride.',
+        'Good',
+        'Evenings',
+        'Pickup only',
+        'Coimbatore',
+        11.004100, 76.961000, 5.0,
+        NULL,
+        ARRAY['Household']::TEXT[],
+        v_offer_id_2
+    );
+END;
+$$;
+
+-- 46. ONE-RUN VERIFICATION
+-- These SELECTs do not modify data. They let pgAdmin4 show the result of the
+-- complete script immediately after execution.
 -- ============================================================================
-CALL sp_post_need(
-    (SELECT user_id FROM users WHERE username='asha'),
-    'Tools',
-    'Borrow a drill for weekend DIY',
-    'Looking for a drill for a small home project this weekend.',
-    'medium',
-    '2 days',
-    'Coimbatore',
-    11.004100, 76.961000, 5.0,
-    NULL,
-    ARRAY['Tools']
-);
+SELECT 'users' AS object_name, COUNT(*) AS row_count FROM users
+UNION ALL
+SELECT 'needs', COUNT(*) FROM needs
+UNION ALL
+SELECT 'offers', COUNT(*) FROM offers
+UNION ALL
+SELECT 'categories', COUNT(*) FROM categories
+UNION ALL
+SELECT 'bookmarks', COUNT(*) FROM bookmarks
+UNION ALL
+SELECT 'conversations', COUNT(*) FROM conversations
+UNION ALL
+SELECT 'messages', COUNT(*) FROM messages
+ORDER BY object_name;
 
-CALL sp_post_need(
-    (SELECT user_id FROM users WHERE username='ravi'),
-    'Transport',
-    'Emergency ride to hospital',
-    'Need urgent local transport support.',
-    'emergency',
-    'Flexible',
-    'Coimbatore',
-    11.010000, 76.970000, 5.0,
-    NULL,
-    ARRAY['Transport']
-);
+SELECT id, title, category, urgency, location, distance,
+       requester_name, requester_initial, verified, "time"
+FROM fn_search_needs_frontend(NULL, NULL, 5, NULL, 'All', 'All', FALSE, 'latest');
 
-CALL sp_post_offer(
-    (SELECT user_id FROM users WHERE username='ravi'),
-    'Equipment',
-    'Laptop repair & setup',
-    'Can help with basic laptop repair and setup.',
-    'Good',
-    'Weekends',
-    'Can deliver',
-    'Coimbatore',
-    11.010000, 76.970000, 5.0,
-    NULL,
-    ARRAY['Equipment']
-);
-
-CALL sp_post_offer(
-    (SELECT user_id FROM users WHERE username='asha'),
-    'Household',
-    'Borrow a cycle for evening ride',
-    'A cycle is available for a short neighborhood ride.',
-    'Good',
-    'Evenings',
-    'Pickup only',
-    'Coimbatore',
-    11.004100, 76.961000, 5.0,
-    NULL,
-    ARRAY['Household']
-);
-
--- ============================================================================
--- 46. SANITY TEST QUERIES
--- Run these individually in pgAdmin after the script completes.
--- ============================================================================
-/*
-SELECT * FROM fn_login('asha@example.com', 'pass123');
-
-SELECT * FROM fn_get_profile(
-    (SELECT user_id FROM users WHERE username='asha')
-);
-
-SELECT * FROM fn_get_settings(
-    (SELECT user_id FROM users WHERE username='asha')
-);
-
-SELECT * FROM fn_search_needs_frontend(
-    11.004100, 76.961000, 5, NULL, NULL, NULL, FALSE, 'latest'
-);
-
-SELECT * FROM fn_search_offers_frontend(
-    11.004100, 76.961000, 5, NULL, NULL, NULL, FALSE, 'latest'
-);
-
-SELECT * FROM fn_get_need_frontend(1, 11.004100, 76.961000);
-
-SELECT * FROM fn_get_offer_frontend(1, 11.004100, 76.961000);
-
-SELECT * FROM fn_admin_dashboard_stats();
-
-SELECT * FROM vw_frontend_needs;
-SELECT * FROM vw_frontend_offers;
-*/
+SELECT id, title, category, condition, availability, pickup_option,
+       location, distance, owner_name, owner_initial, verified, "time"
+FROM fn_search_offers_frontend(NULL, NULL, 5, NULL, 'All', 'All', FALSE, 'latest');
