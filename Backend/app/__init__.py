@@ -1,0 +1,1 @@
+"""NeighbourNet FastAPI application package."""
