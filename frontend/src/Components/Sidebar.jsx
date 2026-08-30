@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   HandHeart,
@@ -37,13 +37,29 @@ export default function Sidebar({
   tagline = "Hyperlocal Community Network",
   top,
   extra,
-  createTo = "/needs/new",
+  createTo,
   hideCreate = false,
   isOpen = false,
   onClose,
   onLogout,
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isNeedsRoute = location.pathname.startsWith("/needs");
+  const isOffersRoute = location.pathname.startsWith("/offers");
+  const isNeedsOrOffers = isNeedsRoute || isOffersRoute;
+
+  // The create button is only available in Needs and Offers sections
+  const showCreateBtn = !hideCreate && (createTo !== undefined ? true : isNeedsOrOffers);
+  const targetCreateTo = createTo || (isOffersRoute ? "/offers/new" : "/needs/new");
+  const createLabel = createTo
+    ? createTo.includes("offer")
+      ? "Create Offer"
+      : "Create Need"
+    : isOffersRoute
+    ? "Create Offer"
+    : "Create Need";
 
   const { darkMode, toggleTheme } = useTheme();
 
@@ -110,17 +126,17 @@ export default function Sidebar({
         </div>
 
         <div className="sb-actions">
-          {!hideCreate && (
+          {showCreateBtn && (
             <button
               type="button"
               className="sb-create-btn"
               onClick={() => {
                 if (onClose) onClose();
-                navigate(createTo);
+                navigate(targetCreateTo);
               }}
             >
               <Plus size={16} />
-              Create
+              {createLabel}
             </button>
           )}
 

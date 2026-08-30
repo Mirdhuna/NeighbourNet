@@ -116,7 +116,7 @@ export default function Offers() {
   return (
     <div className="of-page">
       <div className="of-shell">
-        <Sidebar tagline="Hyperlocal Community Network" />
+        <Sidebar tagline="Hyperlocal Community Network" createTo="/offers/new" />
 
         <main className="of-main">
           <section className="of-hero">
