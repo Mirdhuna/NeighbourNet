@@ -93,7 +93,7 @@ export default function Profile() {
   return (
     <div className="pf-page">
       <div className="pf-shell">
-        <Sidebar tagline="Your NeighborNet profile" hideCreate />
+        <Sidebar tagline="Hyperlocal Community Network" />
 
         <main className="pf-main">
           {/* Profile header card */}

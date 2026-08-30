@@ -99,50 +99,10 @@ export default function Needs() {
     setError("");
   };
 
-  // Content rendered above the nav in the shared sidebar
-  const sidebarTop = (
-    <>
-      <div className="nn-side-stat">
-        <Sparkles size={14} />
-        <span>Nearby requests and trusted help</span>
-      </div>
-
-      <div className="nn-quick-stats">
-        <div className="nn-mini-card">
-          <div className="nn-mini-label">Visible</div>
-          <div className="nn-mini-value">{stats.total}</div>
-        </div>
-        <div className="nn-mini-card">
-          <div className="nn-mini-label">Verified</div>
-          <div className="nn-mini-value">{stats.verified}</div>
-        </div>
-        <div className="nn-mini-card">
-          <div className="nn-mini-label">Priority</div>
-          <div className="nn-mini-value">{stats.emergency}</div>
-        </div>
-      </div>
-    </>
-  );
-
-  // Content rendered below the nav in the shared sidebar
-  const sidebarExtra = (
-    <div className="nn-side-box">
-      <div className="nn-side-box-title">AI suggestions</div>
-      <div className="nn-ai-pill">Recommended matches: 3</div>
-      <div className="nn-ai-pill">Suggested categories: Medicine, Transport</div>
-      <div className="nn-ai-pill">Urgency prediction: High</div>
-    </div>
-  );
-
   return (
     <div className="nn-page">
       <div className="nn-shell">
-        <Sidebar
-          tagline="Hyperlocal help requests"
-          top={sidebarTop}
-          extra={sidebarExtra}
-          createTo="/needs/new"
-        />
+        <Sidebar tagline="Hyperlocal Community Network" />
 
         <main className="nn-main">
           <section className="nn-hero">

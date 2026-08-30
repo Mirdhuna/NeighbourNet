@@ -19,6 +19,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<NeighbourNetLogin />} />
+        <Route path="/login" element={<NeighbourNetLogin />} />
         <Route path="/dashboard" element={<NeighbourNetDashboard />} />
         <Route path="/needs" element={<Needs/>}/>
         <Route path="/needs/new" element={<CreateNeed/>}/>

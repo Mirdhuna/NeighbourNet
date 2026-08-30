@@ -65,7 +65,7 @@ export default function CreateNeed() {
   return (
     <div className="nn-page">
       <div className="nn-shell">
-        <Sidebar tagline="Post a new request" createTo="/needs/new" />
+        <Sidebar tagline="Hyperlocal Community Network" />
 
         <main className="nn-main">
           <button className="nf-back" onClick={() => navigate("/needs")}>

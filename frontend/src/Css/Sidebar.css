@@ -1,26 +1,24 @@
 /* ---------------------------------------------------------------------------
-   SIDEBAR — shared across Dashboard, Needs, Offers, etc.
-   The alignment fix: the sidebar is a single flex column pinned to full
-   viewport height. The scrollable middle (logo/stats/nav/extra) takes up
-   remaining space via flex:1, and the action buttons are a separate flex
-   item at the bottom — so they always sit flush at the bottom of the
-   sidebar no matter how much (or little) content is above them, and stay
-   identical from page to page.
+   SIDEBAR — shared across all pages (Dashboard, Needs, Offers, Admin, etc.)
+   Consistent 280px sticky frosted-card column matching the app design system.
 --------------------------------------------------------------------------- */
 
 .sb-root {
-  width: 272px;
-  flex-shrink: 0;
-  height: 100vh;
+  width: 100%;
+  height: calc(100vh - 2rem);
   position: sticky;
-  top: 0;
+  top: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: #ffffff;
-  border-right: 1px solid #d9dee6;
-  padding: 24px 18px;
+  background: var(--ad-card, rgba(255, 255, 255, 0.95));
+  border: 1px solid var(--ad-line, rgba(183, 193, 207, 0.7));
+  border-radius: var(--ad-radius, 24px);
+  padding: 1.25rem;
   box-sizing: border-box;
+  box-shadow: 0 18px 45px -16px rgba(39, 48, 68, 0.12);
+  backdrop-filter: blur(16px);
+  z-index: 40;
 }
 
 .sb-scroll {
@@ -29,88 +27,122 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1.25rem;
 }
-.sb-scroll::-webkit-scrollbar { width: 5px; }
-.sb-scroll::-webkit-scrollbar-thumb { background: #d9dee6; border-radius: 999px; }
+
+.sb-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.sb-scroll::-webkit-scrollbar-thumb {
+  background: var(--ad-line, #d9dee6);
+  border-radius: 999px;
+}
 
 /* Logo */
 .sb-top {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1rem;
 }
 
 .sb-logo-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  position: relative;
 }
 
 .sb-logo-mark {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #5f7d99, #48607a);
+  background: linear-gradient(135deg, #6a8fb8, #4a6fa5);
   color: #fff;
   font-weight: 700;
+  font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(74, 111, 165, 0.25);
+}
+
+.sb-logo-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .sb-logo-text {
-  font-weight: 700;
-  font-size: 15px;
-  color: #262b3a;
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--ad-ink, #273044);
   line-height: 1.2;
 }
 
 .sb-tagline {
-  font-size: 12px;
-  color: #767b8c;
+  font-size: 11px;
+  color: var(--ad-soft, #7a8699);
   margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sb-close-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--ad-soft, #7a8699);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+}
+.sb-close-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--ad-ink, #273044);
 }
 
 /* Nav */
 .sb-nav {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .sb-nav-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 10px;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 14px;
   font-size: 14px;
   font-weight: 500;
-  color: #767b8c;
+  color: var(--ad-soft, #7a8699);
   text-decoration: none;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
 }
 
 .sb-nav-item:hover {
-  background: #eef1f5;
-  color: #262b3a;
+  background: rgba(106, 143, 184, 0.08);
+  color: var(--ad-ink, #273044);
+  transform: translateX(2px);
 }
 
 .sb-nav-item.active {
-  background: rgba(95, 125, 153, 0.12);
-  color: #48607a;
+  background: rgba(106, 143, 184, 0.16);
+  color: #4a6fa5;
+  font-weight: 600;
 }
 
-/* Actions — pinned at the bottom of the flex column */
+/* Actions — bottom pinned */
 .sb-actions {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding-top: 16px;
-  margin-top: 16px;
-  border-top: 1px solid #d9dee6;
+  padding-top: 14px;
+  margin-top: 10px;
+  border-top: 1px solid var(--ad-line, rgba(183, 193, 207, 0.5));
   flex-shrink: 0;
 }
 
@@ -122,78 +154,107 @@
   gap: 8px;
   width: 100%;
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
   border: none;
   cursor: pointer;
-  transition: transform 0.12s ease, opacity 0.12s ease;
+  transition: transform 0.12s ease, opacity 0.12s ease, background 0.15s ease;
 }
+
 .sb-create-btn:active,
 .sb-logout-btn:active {
   transform: scale(0.98);
 }
 
 .sb-create-btn {
-  background: linear-gradient(135deg, #5f7d99, #48607a);
-  color: #fff;
-  box-shadow: 0 8px 18px -8px rgba(72, 96, 122, 0.4);
+  background: linear-gradient(135deg, #6a8fb8, #4a6fa5);
+  color: #ffffff;
+  box-shadow: 0 4px 14px -3px rgba(74, 111, 165, 0.4);
 }
-.sb-create-btn:hover { opacity: 0.92; }
+.sb-create-btn:hover {
+  opacity: 0.94;
+}
 
 .sb-logout-btn {
-  background: rgba(168, 83, 63, 0.1);
-  color: #a8533f;
+  background: rgba(201, 74, 74, 0.08);
+  color: #c94a4a;
 }
-.sb-logout-btn:hover { opacity: 0.85; }
+.sb-logout-btn:hover {
+  background: rgba(201, 74, 74, 0.15);
+}
 
-/* Responsive: collapse to an off-canvas drawer below 1024px.
-   Add a "sb-open" class to .sb-root (e.g. via a mobile menu toggle
-   in your page header) to slide it into view. */
+/* Backdrop */
+.sb-backdrop {
+  display: none;
+}
+
+/* Responsive (<= 1024px) */
 @media (max-width: 1024px) {
   .sb-root {
     position: fixed;
-    left: 0;
-    top: 0;
-    transform: translateX(-100%);
-    z-index: 60;
-    box-shadow: 0 0 0 100vw rgba(0, 0, 0, 0);
-    transition: transform 0.2s ease;
+    top: 1rem;
+    left: 1rem;
+    width: min(300px, calc(100vw - 2rem));
+    height: calc(100vh - 2rem);
+    transform: translateX(-120%);
+    z-index: 90;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   }
+
   .sb-root.sb-open {
     transform: translateX(0);
-    box-shadow: 0 0 0 100vw rgba(30, 42, 38, 0.4);
+  }
+
+  .sb-close-btn {
+    display: flex;
+  }
+
+  .sb-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+    z-index: 80;
   }
 }
 
+/* Dark mode */
 html[data-theme="dark"] .sb-root {
-  background: #1e2634;
-  border-right-color: rgba(90, 105, 125, 0.45);
-}
-
-html[data-theme="dark"] .sb-scroll::-webkit-scrollbar-thumb {
-  background: #3a465c;
+  background: var(--ad-card, rgba(26, 35, 50, 0.95));
+  border-color: var(--ad-line, rgba(61, 79, 104, 0.7));
+  box-shadow: 0 18px 45px -16px rgba(0, 0, 0, 0.5);
 }
 
 html[data-theme="dark"] .sb-logo-text {
-  color: #e8eef6;
+  color: #f4f7fb;
 }
 
 html[data-theme="dark"] .sb-tagline,
 html[data-theme="dark"] .sb-nav-item {
-  color: #9aa8bc;
+  color: #9aabc0;
 }
 
 html[data-theme="dark"] .sb-nav-item:hover {
-  background: #2a3548;
-  color: #e8eef6;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f4f7fb;
 }
 
 html[data-theme="dark"] .sb-nav-item.active {
-  background: rgba(122, 155, 199, 0.16);
-  color: #b8cce8;
+  background: rgba(142, 180, 224, 0.18);
+  color: #8eb4e0;
 }
 
 html[data-theme="dark"] .sb-actions {
-  border-top-color: rgba(90, 105, 125, 0.45);
+  border-top-color: rgba(61, 79, 104, 0.7);
+}
+
+html[data-theme="dark"] .sb-logout-btn {
+  background: rgba(201, 74, 74, 0.16);
+  color: #f87171;
+}
+html[data-theme="dark"] .sb-logout-btn:hover {
+  background: rgba(201, 74, 74, 0.25);
 }

@@ -34,7 +34,7 @@ export default function NeedDetail() {
     return (
       <div className="nn-page">
         <div className="nn-shell">
-          <Sidebar tagline="Hyperlocal help requests" />
+          <Sidebar tagline="Hyperlocal Community Network" />
           <main className="nn-main">
             <div className="nd-not-found">
               <h2>Need not found</h2>
@@ -53,7 +53,7 @@ export default function NeedDetail() {
   return (
     <div className="nn-page">
       <div className="nn-shell">
-        <Sidebar tagline="Hyperlocal help requests" />
+        <Sidebar tagline="Hyperlocal Community Network" />
 
         <main className="nn-main">
           <button className="nf-back" onClick={() => navigate("/needs")}>

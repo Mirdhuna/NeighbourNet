@@ -616,3 +616,136 @@ body {
     min-width: 100%;
   }
 }
+
+/* ==========================================================================
+   DARK THEME OVERRIDES
+   ========================================================================== */
+html[data-theme="dark"] {
+  --ad-bg: #0b1018;
+  --ad-card: #1a2332;
+  --ad-line: #3d4f68;
+  --ad-ink: #f4f7fb;
+  --ad-soft: #c5d0de;
+  --ad-blue: #8eb4e0;
+  --ad-blue-2: #6d93c2;
+  --ad-peach: #e0b49a;
+  --ad-green: #7ed083;
+}
+
+html[data-theme="dark"] .ad-page {
+  background: #0b1018 !important;
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .ad-topbar,
+html[data-theme="dark"] .ad-stat-card,
+html[data-theme="dark"] .ad-panel,
+html[data-theme="dark"] .ad-sidebar {
+  background: #1a2332 !important;
+  border-color: #3d4f68 !important;
+  box-shadow: 0 18px 45px -16px rgba(0, 0, 0, 0.45) !important;
+}
+
+html[data-theme="dark"] .ad-search,
+html[data-theme="dark"] .ad-chart-box,
+html[data-theme="dark"] .ad-alert-item,
+html[data-theme="dark"] .ad-quick-btn,
+html[data-theme="dark"] .ad-side-card,
+html[data-theme="dark"] .ad-side-mini,
+html[data-theme="dark"] .ad-logout-btn,
+html[data-theme="dark"] .ad-menu-btn,
+html[data-theme="dark"] .ad-close-btn,
+html[data-theme="dark"] .ad-range,
+html[data-theme="dark"] .ad-panel-btn.secondary,
+html[data-theme="dark"] .ad-icon-btn {
+  background-color: #141c28 !important;
+  border-color: #3d4f68 !important;
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .ad-search input {
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .ad-search input::placeholder {
+  color: #9aabc0 !important;
+}
+
+html[data-theme="dark"] .ad-quick-btn:hover,
+html[data-theme="dark"] .ad-panel-btn.secondary:hover,
+html[data-theme="dark"] .ad-icon-btn:hover,
+html[data-theme="dark"] .ad-nav-item:hover,
+html[data-theme="dark"] .ad-logout-btn:hover {
+  background-color: #222f42 !important;
+  color: #f4f7fb !important;
+  border-color: #4a6382 !important;
+}
+
+html[data-theme="dark"] .ad-top-left h1,
+html[data-theme="dark"] .ad-stat-value,
+html[data-theme="dark"] .ad-panel-head h2,
+html[data-theme="dark"] .ad-table td,
+html[data-theme="dark"] .ad-side-card-title {
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .ad-stat-label,
+html[data-theme="dark"] .ad-panel-head p,
+html[data-theme="dark"] .ad-chart-legend,
+html[data-theme="dark"] .ad-sidebar-tag {
+  color: #c5d0de !important;
+}
+
+html[data-theme="dark"] .ad-table th {
+  color: #9aabc0 !important;
+  border-bottom: 1px solid #3d4f68 !important;
+}
+
+html[data-theme="dark"] .ad-table td {
+  border-bottom: 1px solid #2a384c !important;
+}
+
+html[data-theme="dark"] .ad-table tr:hover td {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+html[data-theme="dark"] .ad-kicker {
+  background: rgba(142, 180, 224, 0.18) !important;
+  color: #8eb4e0 !important;
+}
+
+html[data-theme="dark"] .ad-stat-card.blue .ad-stat-icon {
+  background: rgba(142, 180, 224, 0.15) !important;
+  color: #8eb4e0 !important;
+}
+
+html[data-theme="dark"] .ad-stat-card.peach .ad-stat-icon {
+  background: rgba(224, 180, 154, 0.18) !important;
+  color: #e0b49a !important;
+}
+
+html[data-theme="dark"] .ad-stat-card.green .ad-stat-icon {
+  background: rgba(126, 208, 131, 0.18) !important;
+  color: #7ed083 !important;
+}
+
+html[data-theme="dark"] .ad-stat-card.yellow .ad-stat-icon {
+  background: rgba(251, 191, 36, 0.18) !important;
+  color: #fbbf24 !important;
+}
+
+html[data-theme="dark"] .ad-pill.pending {
+  background: rgba(245, 158, 11, 0.2) !important;
+  color: #fbbf24 !important;
+}
+
+html[data-theme="dark"] .ad-pill.approved,
+html[data-theme="dark"] .ad-pill.verified {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #86efac !important;
+}
+
+html[data-theme="dark"] .ad-pill.flagged {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #fca5a5 !important;
+}

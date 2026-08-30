@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Search,
@@ -142,7 +142,7 @@ export default function Messages() {
   return (
     <div className="ms-page">
       <div className="ms-shell">
-        <Sidebar tagline="Talk with your neighbors" hideCreate />
+        <Sidebar tagline="Hyperlocal Community Network" />
 
         <main className="ms-main">
           <div className={`ms-chat-shell ${mobileShowThread ? "show-thread" : ""}`}>

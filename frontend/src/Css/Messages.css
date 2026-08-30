@@ -578,3 +578,216 @@
     padding: 0.35rem;
   }
 }
+
+/* ==========================================================================
+   DARK THEME OVERRIDES
+   ========================================================================== */
+html[data-theme="dark"] {
+  --ad-bg: #0b1018;
+  --ad-card: #1a2332;
+  --ad-line: #3d4f68;
+  --ad-ink: #f4f7fb;
+  --ad-soft: #c5d0de;
+  --ad-blue: #8eb4e0;
+  --ad-blue-2: #6d93c2;
+  --ad-peach: #e0b49a;
+  --ad-green: #7ed083;
+}
+
+html[data-theme="dark"] .ms-page {
+  background: #0b1018 !important;
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .ms-chat-shell {
+  background: #1a2332 !important;
+  border-color: #3d4f68 !important;
+  box-shadow: 0 18px 45px -16px rgba(0, 0, 0, 0.5) !important;
+}
+
+html[data-theme="dark"] .ms-list {
+  background: #141c28 !important;
+  border-right-color: #3d4f68 !important;
+}
+
+html[data-theme="dark"] .ms-list-top {
+  background: #1a2332 !important;
+  border-bottom-color: #3d4f68 !important;
+}
+
+html[data-theme="dark"] .ms-list-search {
+  background: #141c28 !important;
+  border-color: #3d4f68 !important;
+  color: #c5d0de !important;
+}
+
+html[data-theme="dark"] .ms-list-search input {
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .ms-list-search input::placeholder {
+  color: #9aabc0 !important;
+}
+
+html[data-theme="dark"] .ms-composer {
+  background: #141c28 !important;
+  border-bottom-color: #3d4f68 !important;
+}
+
+html[data-theme="dark"] .ms-composer-input {
+  background: #1a2332 !important;
+  border-color: #3d4f68 !important;
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .ms-composer-input::placeholder {
+  color: #9aabc0 !important;
+}
+
+html[data-theme="dark"] .ms-composer-start {
+  background: #222f42 !important;
+  border-color: #3d4f68 !important;
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .ms-composer-start:hover {
+  background: #4a6fa5 !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+html[data-theme="dark"] .ms-list-empty {
+  color: #9aabc0 !important;
+}
+
+html[data-theme="dark"] .ms-convo {
+  border-bottom-color: #2a384c !important;
+}
+
+html[data-theme="dark"] .ms-convo:hover {
+  background: #1a2332 !important;
+}
+
+html[data-theme="dark"] .ms-convo.active {
+  background: rgba(142, 180, 224, 0.18) !important;
+}
+
+html[data-theme="dark"] .ms-convo-top strong {
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .ms-convo-time,
+html[data-theme="dark"] .ms-convo-body p {
+  color: #9aabc0 !important;
+}
+
+html[data-theme="dark"] .ms-delete-btn {
+  color: #9aabc0 !important;
+}
+
+html[data-theme="dark"] .ms-delete-btn:hover {
+  background: rgba(239, 68, 68, 0.25) !important;
+  color: #fca5a5 !important;
+}
+
+html[data-theme="dark"] .ms-online-dot {
+  border-color: #141c28 !important;
+}
+
+html[data-theme="dark"] .ms-thread {
+  background: #0f1722 !important;
+}
+
+html[data-theme="dark"] .ms-thread-empty {
+  color: #9aabc0 !important;
+}
+
+html[data-theme="dark"] .ms-thread-header {
+  background: #1a2332 !important;
+  border-bottom-color: #3d4f68 !important;
+}
+
+html[data-theme="dark"] .ms-back-btn {
+  background: #141c28 !important;
+  border-color: #3d4f68 !important;
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .ms-thread-name {
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .ms-thread-status {
+  color: #9aabc0 !important;
+}
+
+html[data-theme="dark"] .ms-thread-status.online {
+  color: #4ade80 !important;
+}
+
+html[data-theme="dark"] .ms-bubble {
+  background: #1a2332 !important;
+  border-color: #3d4f68 !important;
+  color: #f4f7fb !important;
+  box-shadow: 0 4px 18px -4px rgba(0, 0, 0, 0.3) !important;
+}
+
+html[data-theme="dark"] .ms-bubble p {
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .ms-bubble-time {
+  color: #9aabc0 !important;
+}
+
+html[data-theme="dark"] .ms-bubble-row.me .ms-bubble {
+  background: linear-gradient(135deg, #3b6ea5, #2d5584) !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 22px -6px rgba(0, 0, 0, 0.4) !important;
+}
+
+html[data-theme="dark"] .ms-bubble-row.me .ms-bubble p,
+html[data-theme="dark"] .ms-bubble-row.me .ms-bubble-time {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .ms-typing {
+  background: #1a2332 !important;
+  border-color: #3d4f68 !important;
+}
+
+html[data-theme="dark"] .ms-typing span {
+  background: #9aabc0 !important;
+}
+
+html[data-theme="dark"] .ms-input-row {
+  background: #1a2332 !important;
+  border-top-color: #3d4f68 !important;
+}
+
+html[data-theme="dark"] .ms-icon-btn {
+  color: #9aabc0 !important;
+}
+
+html[data-theme="dark"] .ms-icon-btn:hover {
+  background: #243044 !important;
+  color: #f4f7fb !important;
+  border-color: #3d4f68 !important;
+}
+
+html[data-theme="dark"] .ms-text-input {
+  background: #141c28 !important;
+  border-color: #3d4f68 !important;
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .ms-text-input::placeholder {
+  color: #9aabc0 !important;
+}
+
+html[data-theme="dark"] .ms-text-input:focus {
+  background: #1a2332 !important;
+  border-color: #6a8fb8 !important;
+  box-shadow: 0 0 0 4px rgba(106, 143, 184, 0.25) !important;
+}

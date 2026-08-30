@@ -35,7 +35,7 @@ export default function OfferDetail() {
     return (
       <div className="of-page">
         <div className="of-shell">
-          <Sidebar tagline="Share what you have" createTo="/offers/new" />
+          <Sidebar tagline="Hyperlocal Community Network" />
           <main className="of-main">
             <div className="od-not-found">
               <h2>Offer not found</h2>
@@ -54,7 +54,7 @@ export default function OfferDetail() {
   return (
     <div className="of-page">
       <div className="of-shell">
-        <Sidebar tagline="Share what you have" createTo="/offers/new" />
+        <Sidebar tagline="Hyperlocal Community Network" />
 
         <main className="of-main">
           <button className="of-back" onClick={() => navigate("/offers")}>

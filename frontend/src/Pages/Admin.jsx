@@ -1,45 +1,20 @@
-import React, { useMemo, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useMemo, useState } from "react";
 import {
-  LayoutDashboard,
-  PackageSearch,
-  Megaphone,
-  MessageCircle,
-  BookmarkCheck,
-  Bell,
-  User,
-  Settings,
-  LogOut,
   Menu,
   Search,
   Users,
   ShieldCheck,
   FileText,
-  TrendingUp,
   AlertTriangle,
   CheckCircle2,
   Clock3,
   CircleDollarSign,
-  Sparkles,
-  BarChart3,
-  Activity,
-  ArrowUpRight,
   Plus,
   Filter,
   MoreVertical,
 } from "lucide-react";
+import Sidebar from "../Components/Sidebar";
 import "../Css/Admin.css";
-
-const navItems = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/needs", label: "Needs", icon: PackageSearch },
-  { to: "/offers", label: "Offers", icon: Megaphone },
-  { to: "/messages", label: "Messages", icon: MessageCircle },
-  { to: "/bookmarks", label: "Bookmarks", icon: BookmarkCheck },
-  { to: "/notifications", label: "Notifications", icon: Bell },
-  { to: "/profile", label: "Profile", icon: User },
-  { to: "/settings", label: "Settings", icon: Settings },
-];
 
 const stats = [
   { label: "Total Users", value: "12.4K", change: "+8.2%", icon: Users, tone: "blue" },
@@ -82,61 +57,11 @@ export default function Admin() {
   return (
     <div className="ad-page">
       <div className="ad-shell">
-        <aside className={`ad-sidebar ${mobileNavOpen ? "open" : ""}`}>
-          <div className="ad-sidebar-top">
-            <div className="ad-logo-row">
-              <div className="ad-logo-mark">
-                <span>N</span>
-              </div>
-              <div>
-                <div className="ad-logo-text">NeighborNet</div>
-                <div className="ad-sidebar-tag">Admin Control Panel</div>
-              </div>
-            </div>
-
-            <button className="ad-close-btn" onClick={() => setMobileNavOpen(false)}>
-              <LogOut size={16} />
-            </button>
-          </div>
-
-          <nav className="ad-nav">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  className={({ isActive }) => `ad-nav-item ${isActive ? "active" : ""}`}
-                  onClick={() => setMobileNavOpen(false)}
-                >
-                  <Icon size={16} />
-                  <span>{item.label}</span>
-                </NavLink>
-              );
-            })}
-          </nav>
-
-          <div className="ad-side-card">
-            <div className="ad-side-card-title">System Health</div>
-            <div className="ad-side-mini">
-              <Activity size={14} />
-              <span>99.98% uptime</span>
-            </div>
-            <div className="ad-side-mini">
-              <ShieldCheck size={14} />
-              <span>Moderation running</span>
-            </div>
-            <div className="ad-side-mini">
-              <Sparkles size={14} />
-              <span>AI suggestions enabled</span>
-            </div>
-          </div>
-
-          <button className="ad-logout-btn">
-            <LogOut size={16} />
-            Logout
-          </button>
-        </aside>
+        <Sidebar
+          tagline="Hyperlocal Community Network"
+          isOpen={mobileNavOpen}
+          onClose={() => setMobileNavOpen(false)}
+        />
 
         <main className="ad-main">
           <header className="ad-topbar">

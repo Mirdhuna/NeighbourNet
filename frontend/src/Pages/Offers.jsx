@@ -99,38 +99,10 @@ export default function Offers() {
     setError("");
   };
 
-  const sidebarTop = (
-    <>
-      <div className="of-side-stat">
-        <Sparkles size={14} />
-        <span>Things and skills nearby</span>
-      </div>
-
-      <div className="of-quick-stats">
-        <div className="of-mini-card">
-          <div className="of-mini-label">Visible</div>
-          <div className="of-mini-value">{stats.total}</div>
-        </div>
-        <div className="of-mini-card">
-          <div className="of-mini-label">Verified</div>
-          <div className="of-mini-value">{stats.verified}</div>
-        </div>
-        <div className="of-mini-card">
-          <div className="of-mini-label">Like new</div>
-          <div className="of-mini-value">{stats.fresh}</div>
-        </div>
-      </div>
-    </>
-  );
-
   return (
     <div className="of-page">
       <div className="of-shell">
-        <Sidebar
-          tagline="Share what you have"
-          top={sidebarTop}
-          createTo="/offers/new"
-        />
+        <Sidebar tagline="Hyperlocal Community Network" />
 
         <main className="of-main">
           <section className="of-hero">

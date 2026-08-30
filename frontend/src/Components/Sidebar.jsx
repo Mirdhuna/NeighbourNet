@@ -4,15 +4,14 @@ import {
   LayoutDashboard,
   HandHeart,
   Gift,
-  Search,
   MessageCircle,
   Bookmark,
-  Bell,
   User,
   Settings,
   Shield,
   Plus,
   LogOut,
+  X,
 } from "lucide-react";
 import "../Css/Sidebar.css";
 
@@ -20,96 +19,119 @@ const navItems = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/needs", label: "Needs", icon: HandHeart },
   { to: "/offers", label: "Offers", icon: Gift },
-  //{ to: "/search", label: "Search", icon: Search },
   { to: "/messages", label: "Messages", icon: MessageCircle },
   { to: "/bookmarks", label: "Bookmarks", icon: Bookmark },
-  //{ to: "/notifications", label: "Notifications", icon: Bell },
   { to: "/profile", label: "Profile", icon: User },
   { to: "/settings", label: "Settings", icon: Settings },
   { to: "/admin", label: "Admin", icon: Shield },
 ];
 
 /**
- * Shared app sidebar.
- *
- * Props:
- *  - tagline:    small text under the logo (optional)
- *  - top:        extra content rendered above the nav, e.g. quick stats (optional)
- *  - extra:      extra content rendered below the nav, e.g. an AI suggestions box (optional)
- *  - createTo:   route the "Create Need" button navigates to (default "/needs/new")
- *  - hideCreate: when true, hides the "Create" button entirely (default false).
- *                Use this on pages like Messages where "Create Need" doesn't apply
- *                and the page has its own primary action instead.
- *  - onLogout:   called when Logout is clicked (default: navigate to "/login")
+ * Shared app sidebar across all pages.
  */
 export default function Sidebar({
-  tagline,
+  tagline = "Hyperlocal Community Network",
   top,
   extra,
   createTo = "/needs/new",
   hideCreate = false,
+  isOpen = false,
+  onClose,
   onLogout,
 }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    try {
+      localStorage.removeItem("neighbornet_session");
+      sessionStorage.removeItem("neighbornet_session");
+    } catch {
+      // ignore storage errors
+    }
     if (onLogout) onLogout();
     else navigate("/");
   };
 
   return (
-    <aside className="sb-root">
-      <div className="sb-scroll">
-        <div className="sb-top">
-          <div className="sb-logo-row">
-            <div className="sb-logo-mark">
-              <span>N</span>
+    <>
+      {/* Mobile backdrop */}
+      {isOpen && <div className="sb-backdrop" onClick={onClose} />}
+
+      <aside className={`sb-root ${isOpen ? "sb-open" : ""}`}>
+        <div className="sb-scroll">
+          <div className="sb-top">
+            <div className="sb-logo-row">
+              <div className="sb-logo-mark">
+                <span>N</span>
+              </div>
+              <div className="sb-logo-info">
+                <div className="sb-logo-text">NeighborNet</div>
+                {tagline && <div className="sb-tagline">{tagline}</div>}
+              </div>
+              {onClose && (
+                <button
+                  type="button"
+                  className="sb-close-btn"
+                  onClick={onClose}
+                  aria-label="Close sidebar"
+                >
+                  <X size={18} />
+                </button>
+              )}
             </div>
-            <div>
-              <div className="sb-logo-text">NeighborNet</div>
-              {tagline && <div className="sb-tagline">{tagline}</div>}
-            </div>
+
+            {top}
           </div>
 
-          {top}
+          <nav className="sb-nav">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    `sb-nav-item ${isActive ? "active" : ""}`
+                  }
+                  onClick={() => {
+                    if (onClose) onClose();
+                  }}
+                >
+                  <Icon size={17} />
+                  <span>{item.label}</span>
+                </NavLink>
+              );
+            })}
+          </nav>
+
+          {extra}
         </div>
 
-        <nav className="sb-nav">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) => `sb-nav-item ${isActive ? "active" : ""}`}
-              >
-                <Icon size={17} />
-                <span>{item.label}</span>
-              </NavLink>
-            );
-          })}
-        </nav>
+        <div className="sb-actions">
+          {!hideCreate && (
+            <button
+              type="button"
+              className="sb-create-btn"
+              onClick={() => {
+                if (onClose) onClose();
+                navigate(createTo);
+              }}
+            >
+              <Plus size={16} />
+              Create
+            </button>
+          )}
 
-        {extra}
-      </div>
-
-      <div className="sb-actions">
-        {!hideCreate && (
           <button
             type="button"
-            className="sb-create-btn"
-            onClick={() => navigate(createTo)}
+            className="sb-logout-btn"
+            onClick={handleLogout}
           >
-            <Plus size={16} />
-            Create
+            <LogOut size={16} />
+            Logout
           </button>
-        )}
-
-        <button type="button" className="sb-logout-btn" onClick={handleLogout}>
-          <LogOut size={16} />
-          Logout
-        </button>
-      </div>
-    </aside>
+        </div>
+      </aside>
+    </>
   );
 }

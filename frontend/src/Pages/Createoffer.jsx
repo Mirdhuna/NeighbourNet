@@ -66,7 +66,7 @@ export default function CreateOffer() {
   return (
     <div className="of-page">
       <div className="of-shell">
-        <Sidebar tagline="Share something with the neighborhood" createTo="/offers/new" />
+        <Sidebar tagline="Hyperlocal Community Network" />
 
         <main className="of-main">
           <button className="of-back" onClick={() => navigate("/offers")}>

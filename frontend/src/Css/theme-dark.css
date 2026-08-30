@@ -9,6 +9,59 @@ html[data-theme="dark"] body {
   background: #0b1018 !important;
 }
 
+/* Base pages */
+html[data-theme="dark"] .ad-page,
+html[data-theme="dark"] .ms-page,
+html[data-theme="dark"] .dashboard-page,
+html[data-theme="dark"] .nn-page,
+html[data-theme="dark"] .bm-page,
+html[data-theme="dark"] .pf-page,
+html[data-theme="dark"] .st-page {
+  background: #0b1018 !important;
+  color: #f4f7fb !important;
+}
+
+/* Major card & container surfaces */
+html[data-theme="dark"] .ad-topbar,
+html[data-theme="dark"] .ad-stat-card,
+html[data-theme="dark"] .ad-panel,
+html[data-theme="dark"] .ad-sidebar,
+html[data-theme="dark"] .ms-chat-shell,
+html[data-theme="dark"] .ms-list-top,
+html[data-theme="dark"] .ms-thread-header,
+html[data-theme="dark"] .ms-input-row,
+html[data-theme="dark"] .dashboard-header-left,
+html[data-theme="dark"] .dashboard-stat-card,
+html[data-theme="dark"] .dashboard-panel,
+html[data-theme="dark"] .dashboard-need-card,
+html[data-theme="dark"] .dashboard-offer-card,
+html[data-theme="dark"] .dashboard-empty,
+html[data-theme="dark"] .bm-header,
+html[data-theme="dark"] .bm-card,
+html[data-theme="dark"] .bm-empty,
+html[data-theme="dark"] .pf-card,
+html[data-theme="dark"] .st-card,
+html[data-theme="dark"] .st-header {
+  background: #1a2332 !important;
+  border-color: #3d4f68 !important;
+  box-shadow: 0 18px 45px -16px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Chat structure */
+html[data-theme="dark"] .ms-list {
+  background: #141c28 !important;
+  border-right: 1px solid #3d4f68 !important;
+}
+
+html[data-theme="dark"] .ms-thread {
+  background: #0f1722 !important;
+}
+
+html[data-theme="dark"] .ms-online-dot {
+  border-color: #141c28 !important;
+}
+
+/* Form inputs & dropdowns */
 html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 html[data-theme="dark"] textarea,
 html[data-theme="dark"] select {
@@ -29,7 +82,7 @@ html[data-theme="dark"] option {
   color: #f4f7fb;
 }
 
-/* Hardcoded light panels, chips, rows, and fields */
+/* Hardcoded light panels, chips, rows, and secondary widgets */
 html[data-theme="dark"] .st-user-card,
 html[data-theme="dark"] .st-nav-item:hover,
 html[data-theme="dark"] .st-logout-btn,
@@ -44,9 +97,6 @@ html[data-theme="dark"] .st-dropdown select,
 html[data-theme="dark"] .st-field input:focus,
 html[data-theme="dark"] .st-dropdown select:focus,
 html[data-theme="dark"] .dashboard-header-pill,
-html[data-theme="dark"] .dashboard-need-card,
-html[data-theme="dark"] .dashboard-offer-card,
-html[data-theme="dark"] .dashboard-empty,
 html[data-theme="dark"] .nn-side-stat,
 html[data-theme="dark"] .nn-mini-card,
 html[data-theme="dark"] .nn-side-box,
@@ -122,22 +172,40 @@ html[data-theme="dark"] .ms-composer-start,
 html[data-theme="dark"] .ms-convo:hover,
 html[data-theme="dark"] .ms-back-btn,
 html[data-theme="dark"] .ms-bubble,
+html[data-theme="dark"] .ms-typing,
 html[data-theme="dark"] .ms-icon-btn:hover,
 html[data-theme="dark"] .ms-text-input,
 html[data-theme="dark"] .ms-text-input:focus,
-html[data-theme="dark"] .ad-close-btn,
+html[data-theme="dark"] .ad-search,
+html[data-theme="dark"] .ad-chart-box,
+html[data-theme="dark"] .ad-alert-item,
+html[data-theme="dark"] .ad-quick-btn,
+html[data-theme="dark"] .ad-side-card,
 html[data-theme="dark"] .ad-side-mini,
 html[data-theme="dark"] .ad-logout-btn,
 html[data-theme="dark"] .ad-menu-btn,
 html[data-theme="dark"] .ad-range,
 html[data-theme="dark"] .ad-panel-btn.secondary,
 html[data-theme="dark"] .ad-icon-btn,
+html[data-theme="dark"] .ad-close-btn,
 html[data-theme="dark"] .bm-filter,
+html[data-theme="dark"] .bm-tab,
 html[data-theme="dark"] .od-card,
 html[data-theme="dark"] .od-side-card {
   background-color: #141c28 !important;
   color: #f4f7fb !important;
-  border-color: #3d4f68;
+  border-color: #3d4f68 !important;
+}
+
+html[data-theme="dark"] .ad-quick-btn:hover,
+html[data-theme="dark"] .ad-panel-btn.secondary:hover,
+html[data-theme="dark"] .ad-icon-btn:hover,
+html[data-theme="dark"] .ad-logout-btn:hover,
+html[data-theme="dark"] .ms-icon-btn:hover,
+html[data-theme="dark"] .ms-composer-start:hover {
+  background-color: #222f42 !important;
+  color: #f4f7fb !important;
+  border-color: #4a6382 !important;
 }
 
 html[data-theme="dark"] .st-danger-btn {
@@ -151,7 +219,9 @@ html[data-theme="dark"] .st-profile-avatar {
   color: #f4f7fb !important;
 }
 
+/* Badges & Accents */
 html[data-theme="dark"] .st-kicker,
+html[data-theme="dark"] .ad-kicker,
 html[data-theme="dark"] .dashboard-header-label,
 html[data-theme="dark"] .dashboard-offer-badge,
 html[data-theme="dark"] .nn-badge.category,
@@ -171,14 +241,111 @@ html[data-theme="dark"] .bm-type-chip.need {
   color: #f3d0bc !important;
 }
 
-html[data-theme="dark"] .ms-bubble-row.me .ms-bubble {
-  background: #2d4a72 !important;
+/* Admin Tone & Status Overrides */
+html[data-theme="dark"] .ad-stat-card.blue .ad-stat-icon {
+  background: rgba(142, 180, 224, 0.15) !important;
+  color: #8eb4e0 !important;
+}
+
+html[data-theme="dark"] .ad-stat-card.peach .ad-stat-icon {
+  background: rgba(224, 180, 154, 0.18) !important;
+  color: #e0b49a !important;
+}
+
+html[data-theme="dark"] .ad-stat-card.green .ad-stat-icon {
+  background: rgba(126, 208, 131, 0.18) !important;
+  color: #7ed083 !important;
+}
+
+html[data-theme="dark"] .ad-stat-card.yellow .ad-stat-icon {
+  background: rgba(251, 191, 36, 0.18) !important;
+  color: #fbbf24 !important;
+}
+
+html[data-theme="dark"] .ad-pill.pending {
+  background: rgba(245, 158, 11, 0.2) !important;
+  color: #fbbf24 !important;
+}
+
+html[data-theme="dark"] .ad-pill.approved,
+html[data-theme="dark"] .ad-pill.verified {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #86efac !important;
+}
+
+html[data-theme="dark"] .ad-pill.flagged {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #fca5a5 !important;
+}
+
+/* Admin Table */
+html[data-theme="dark"] .ad-table th {
+  color: #9aabc0 !important;
+  border-bottom: 1px solid #3d4f68 !important;
+}
+
+html[data-theme="dark"] .ad-table td {
+  color: #f4f7fb !important;
+  border-bottom: 1px solid #2a384c !important;
+}
+
+html[data-theme="dark"] .ad-table tr:hover td {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Chat Bubbles & Conversations */
+html[data-theme="dark"] .ms-convo {
+  border-bottom-color: #2a384c !important;
+}
+
+html[data-theme="dark"] .ms-convo.active {
+  background: rgba(142, 180, 224, 0.18) !important;
+}
+
+html[data-theme="dark"] .ms-bubble {
+  background: #1a2332 !important;
+  border-color: #3d4f68 !important;
+  color: #f4f7fb !important;
+  box-shadow: 0 4px 18px -4px rgba(0, 0, 0, 0.3) !important;
+}
+
+html[data-theme="dark"] .ms-bubble p {
   color: #f4f7fb !important;
 }
 
+html[data-theme="dark"] .ms-bubble-time {
+  color: #9aabc0 !important;
+}
+
+html[data-theme="dark"] .ms-bubble-row.me .ms-bubble {
+  background: linear-gradient(135deg, #3b6ea5, #2d5584) !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 22px -6px rgba(0, 0, 0, 0.4) !important;
+}
+
+html[data-theme="dark"] .ms-bubble-row.me .ms-bubble p,
+html[data-theme="dark"] .ms-bubble-row.me .ms-bubble-time {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .ms-typing span {
+  background: #9aabc0 !important;
+}
+
+html[data-theme="dark"] .ms-delete-btn {
+  color: #9aabc0 !important;
+}
+
+html[data-theme="dark"] .ms-delete-btn:hover {
+  background: rgba(239, 68, 68, 0.25) !important;
+  color: #fca5a5 !important;
+}
+
+/* Sidebar */
 html[data-theme="dark"] .sb-root {
   background: #141c28 !important;
-  border-right-color: #3d4f68 !important;
+  border-color: #3d4f68 !important;
 }
 
 html[data-theme="dark"] .sb-logo-text,
@@ -200,46 +367,13 @@ html[data-theme="dark"] .sb-nav-item.active {
   color: #d7e6f8 !important;
 }
 
-html[data-theme="dark"] .nn-page {
-  background: #0b1018 !important;
-}
-
-html[data-theme="dark"] .st-side-note,
-html[data-theme="dark"] .nd-action-btn,
-html[data-theme="dark"] .nd-action-btn:hover,
-html[data-theme="dark"] .od-action-btn,
-html[data-theme="dark"] .od-gallery,
-html[data-theme="dark"] .bm-tab:hover,
-html[data-theme="dark"] .bm-tag,
-html[data-theme="dark"] .nf-back:hover {
-  background-color: #141c28 !important;
-  color: #f4f7fb !important;
-  border-color: #3d4f68;
-}
-
-html[data-theme="dark"] .od-title,
-html[data-theme="dark"] .od-description,
-html[data-theme="dark"] .od-section-title,
-html[data-theme="dark"] .od-review-top,
-html[data-theme="dark"] .od-owner-name,
-html[data-theme="dark"] .od-detail-list strong,
-html[data-theme="dark"] .od-not-found h2 {
-  color: #f4f7fb !important;
-}
-
-html[data-theme="dark"] .od-meta-row,
-html[data-theme="dark"] .od-review p,
-html[data-theme="dark"] .od-owner-sub,
-html[data-theme="dark"] .od-action-btn,
-html[data-theme="dark"] .od-detail-list span,
-html[data-theme="dark"] .od-not-found p {
-  color: #c5d0de !important;
-}
-
-html[data-theme="dark"] .od-card {
-  border-color: #3d4f68 !important;
-}
-
+/* Headings & Texts */
+html[data-theme="dark"] .ad-top-left h1,
+html[data-theme="dark"] .ad-stat-value,
+html[data-theme="dark"] .ad-panel-head h2,
+html[data-theme="dark"] .ad-side-card-title,
+html[data-theme="dark"] .ms-thread-name,
+html[data-theme="dark"] .ms-convo-top strong,
 html[data-theme="dark"] .st-header h1,
 html[data-theme="dark"] .st-card-head h2,
 html[data-theme="dark"] .st-profile-meta strong,
@@ -250,10 +384,30 @@ html[data-theme="dark"] .dashboard-header-title,
 html[data-theme="dark"] .dashboard-stat-value,
 html[data-theme="dark"] .dashboard-panel-title,
 html[data-theme="dark"] .dashboard-need-title,
-html[data-theme="dark"] .dashboard-offer-title {
+html[data-theme="dark"] .dashboard-offer-title,
+html[data-theme="dark"] .bm-header h1,
+html[data-theme="dark"] .bm-empty h3,
+html[data-theme="dark"] .bm-card-title,
+html[data-theme="dark"] .bm-poster-name,
+html[data-theme="dark"] .od-title,
+html[data-theme="dark"] .od-description,
+html[data-theme="dark"] .od-section-title,
+html[data-theme="dark"] .od-review-top,
+html[data-theme="dark"] .od-owner-name,
+html[data-theme="dark"] .od-detail-list strong,
+html[data-theme="dark"] .od-not-found h2 {
   color: #f4f7fb !important;
 }
 
+html[data-theme="dark"] .ad-stat-label,
+html[data-theme="dark"] .ad-panel-head p,
+html[data-theme="dark"] .ad-chart-legend,
+html[data-theme="dark"] .ad-sidebar-tag,
+html[data-theme="dark"] .ms-convo-time,
+html[data-theme="dark"] .ms-convo-body p,
+html[data-theme="dark"] .ms-thread-status,
+html[data-theme="dark"] .ms-thread-empty,
+html[data-theme="dark"] .ms-list-empty,
 html[data-theme="dark"] .st-header p,
 html[data-theme="dark"] .st-switch-row p,
 html[data-theme="dark"] .st-security-item p,
@@ -262,8 +416,66 @@ html[data-theme="dark"] .dashboard-header-subtitle,
 html[data-theme="dark"] .dashboard-stat-label,
 html[data-theme="dark"] .dashboard-panel-subtitle,
 html[data-theme="dark"] .dashboard-need-meta,
-html[data-theme="dark"] .dashboard-offer-meta {
+html[data-theme="dark"] .dashboard-offer-meta,
+html[data-theme="dark"] .bm-header p,
+html[data-theme="dark"] .bm-empty p,
+html[data-theme="dark"] .bm-card-desc,
+html[data-theme="dark"] .bm-card-meta,
+html[data-theme="dark"] .bm-card-meta span,
+html[data-theme="dark"] .od-meta-row,
+html[data-theme="dark"] .od-review p,
+html[data-theme="dark"] .od-owner-sub,
+html[data-theme="dark"] .od-action-btn,
+html[data-theme="dark"] .od-detail-list span,
+html[data-theme="dark"] .od-not-found p {
   color: #c5d0de !important;
+}
+
+html[data-theme="dark"] .ms-thread-status.online,
+html[data-theme="dark"] .bm-verified {
+  color: #4ade80 !important;
+}
+
+html[data-theme="dark"] .bm-tag {
+  background: #141c28 !important;
+  color: #c5d0de !important;
+  border-color: #3d4f68 !important;
+}
+
+html[data-theme="dark"] .bm-tag.urgency-emergency {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #fca5a5 !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+}
+
+html[data-theme="dark"] .bm-tag.urgency-high {
+  background: rgba(245, 158, 11, 0.2) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+html[data-theme="dark"] .bm-card-footer {
+  border-top-color: #2a384c !important;
+}
+
+html[data-theme="dark"] .bm-card:hover {
+  background: #1f2a3c !important;
+  border-color: #4a6382 !important;
+  box-shadow: 0 18px 45px -12px rgba(0, 0, 0, 0.6) !important;
+}
+
+html[data-theme="dark"] .bm-save-btn {
+  color: #f59e0b !important;
+}
+
+html[data-theme="dark"] .bm-tab-count {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .bm-tab.active .bm-tab-count {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
 }
 
 html[data-theme="dark"] .nn-chip.active,
@@ -277,3 +489,4 @@ html[data-theme="dark"] .st-nav-item.active {
   background: rgba(142, 180, 224, 0.2) !important;
   color: #d7e6f8 !important;
 }
+

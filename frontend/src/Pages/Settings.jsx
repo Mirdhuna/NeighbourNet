@@ -1,16 +1,7 @@
-import React, { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard,
-  PackageSearch,
-  Megaphone,
-  MessageCircle,
-  BookmarkCheck,
-  Bell,
   User,
-  Settings as SettingsIcon,
-  LogOut,
-  Shield,
   Globe,
   Edit3,
   Camera,
@@ -21,19 +12,9 @@ import {
   ToggleRight,
   Check,
 } from "lucide-react";
+import Sidebar from "../Components/Sidebar";
 import { getSettings, updateSettings, clearAllData } from "../data/Settingsstore";
 import "../Css/Settings.css";
-
-const navItems = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/needs", label: "Needs", icon: PackageSearch },
-  { to: "/offers", label: "Offers", icon: Megaphone },
-  { to: "/messages", label: "Messages", icon: MessageCircle },
-  { to: "/bookmarks", label: "Bookmarks", icon: BookmarkCheck },
-  //{ to: "/notifications", label: "Notifications", icon: Bell },
-  { to: "/profile", label: "Profile", icon: User },
-  { to: "/settings", label: "Settings", icon: SettingsIcon },
-];
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -69,70 +50,13 @@ export default function Settings() {
     );
     if (!confirmed) return;
     clearAllData();
-    navigate("/login");
+    navigate("/");
   };
 
   return (
     <div className="st-page">
       <div className="st-shell">
-        <aside className="st-sidebar">
-          <div className="st-sidebar-top">
-            <div className="st-logo-row">
-              <div className="st-logo-mark">
-                <span>N</span>
-              </div>
-              <div>
-                <div className="st-logo-text">NeighborNet</div>
-                <div className="st-sidebar-tag">Your account settings</div>
-              </div>
-            </div>
-
-            <div className="st-user-card">
-              <div className="st-user-avatar">{(form.name || "N").charAt(0).toUpperCase()}</div>
-              <div>
-                <strong>{form.name || "You"}</strong>
-                <span>{form.email}</span>
-              </div>
-            </div>
-          </div>
-
-          <nav className="st-nav">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  className={({ isActive }) => `st-nav-item ${isActive ? "active" : ""}`}
-                >
-                  <Icon size={16} />
-                  <span>{item.label}</span>
-                </NavLink>
-              );
-            })}
-          </nav>
-
-          <div className="st-side-note">
-            <Shield size={16} />
-            <span>Manage your account, privacy, and notification preferences.</span>
-          </div>
-
-          <button
-            className="st-logout-btn"
-            onClick={() => {
-              try {
-                localStorage.removeItem("neighbornet_session");
-                sessionStorage.removeItem("neighbornet_session");
-              } catch {
-                // storage unavailable — still navigate away
-              }
-              navigate("/login");
-            }}
-          >
-            <LogOut size={16} />
-            Logout
-          </button>
-        </aside>
+        <Sidebar tagline="Hyperlocal Community Network" />
 
         <main className="st-main">
           <section className="st-header">

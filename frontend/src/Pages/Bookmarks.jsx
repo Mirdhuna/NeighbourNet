@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Bookmark,
@@ -61,7 +61,7 @@ export default function Bookmarks() {
   return (
     <div className="bm-page">
       <div className="bm-shell">
-        <Sidebar tagline="Everything you've saved" hideCreate />
+        <Sidebar tagline="Hyperlocal Community Network" />
 
         <main className="bm-main">
           <div className="bm-header">

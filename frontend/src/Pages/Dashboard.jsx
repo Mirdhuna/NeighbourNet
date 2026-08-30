@@ -59,13 +59,11 @@ export default function NeighbourNetDashboard() {
 
   return (
     <div className="dashboard-page">
-      <Sidebar
-        tagline="Helping neighbors, one need at a time."
-        createTo="/needs/new"
-      />
+      <div className="dashboard-shell">
+        <Sidebar tagline="Hyperlocal Community Network" />
 
-      {/* Main content */}
-      <main className="dashboard-main">
+        {/* Main content */}
+        <main className="dashboard-main">
         {/* Top header */}
         <section className="dashboard-header">
           <div className="dashboard-header-left">
@@ -230,6 +228,7 @@ export default function NeighbourNetDashboard() {
           </div>
         </section>
       </main>
+      </div>
     </div>
   );
 }
