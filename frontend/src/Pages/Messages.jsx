@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Search,
@@ -14,65 +14,72 @@ import {
   Trash2,
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar";
-import {
-  getConversations,
-  getMessages,
-  sendMessage,
-  markRead,
-  receiveAutoReply,
-  createConversation,
-  deleteConversation,
-} from "../data/messagesStore";
+import { apiFetch } from "../api";
 import "../Css/Messages.css";
-
 
 export default function Messages() {
   const navigate = useNavigate();
   const { id: routeId } = useParams();
 
-  const [conversations, setConversations] = useState(getConversations());
+  const [conversations, setConversations] = useState([]);
   const [query, setQuery] = useState("");
-  const [activeId, setActiveId] = useState(routeId || conversations[0]?.id || null);
-  const [messages, setMessages] = useState(activeId ? getMessages(activeId) : []);
+  const [activeId, setActiveId] = useState(routeId ? Number(routeId) : null);
+  const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState("");
   const [typing, setTyping] = useState(false);
   const [mobileShowThread, setMobileShowThread] = useState(!!routeId);
   const [showComposer, setShowComposer] = useState(false);
   const [newRecipient, setNewRecipient] = useState("");
+  const [composerError, setComposerError] = useState("");
   const scrollRef = useRef(null);
 
-  const active = conversations.find((c) => c.id === activeId) || null;
+  const active = conversations.find((c) => c.id === activeId) || (activeId ? { id: activeId, name: `Conversation #${activeId}`, initial: "C", online: false } : null);
 
-  const refreshConversations = () => setConversations(getConversations());
+  const loadConversations = useCallback(async () => {
+    try {
+      const data = await apiFetch("/api/conversations");
+      setConversations(data || []);
+      return data || [];
+    } catch {
+      setConversations([]);
+      return [];
+    }
+  }, []);
+
+  const loadMessages = useCallback(async (convoId) => {
+    if (!convoId) return;
+    try {
+      const msgs = await apiFetch(`/api/conversations/${convoId}/messages`);
+      setMessages(msgs || []);
+      apiFetch(`/api/conversations/${convoId}/read`, { method: "POST" }).catch(() => {});
+    } catch {
+      setMessages([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadConversations().then((convos) => {
+      if (routeId) {
+        const idNum = Number(routeId);
+        setActiveId(idNum);
+        loadMessages(idNum);
+      } else if (convos.length > 0) {
+        const firstId = convos[0].id;
+        setActiveId(firstId);
+        loadMessages(firstId);
+        navigate(`/messages/${firstId}`, { replace: true });
+      }
+    });
+  }, [loadConversations, loadMessages, routeId, navigate]);
 
   const openConversation = (id) => {
-    setActiveId(id);
-    markRead(id);
-    setMessages(getMessages(id));
-    refreshConversations();
+    const idNum = Number(id);
+    setActiveId(idNum);
+    loadMessages(idNum);
     setMobileShowThread(true);
     setShowComposer(false);
-    navigate(`/messages/${id}`, { replace: true });
+    navigate(`/messages/${idNum}`, { replace: true });
   };
-
-  useEffect(() => {
-    if (routeId && routeId !== activeId) {
-      openConversation(routeId);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeId]);
-
-  // On first mount with no conversation id in the URL, the first
-  // conversation is selected by default but was never actually marked as
-  // read or reflected in the URL. Do that once here.
-  useEffect(() => {
-    if (!routeId && activeId) {
-      markRead(activeId);
-      refreshConversations();
-      navigate(`/messages/${activeId}`, { replace: true });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -82,60 +89,71 @@ export default function Messages() {
   }, [messages, typing]);
 
   const filteredConversations = conversations.filter((c) =>
-    c.name.toLowerCase().includes(query.toLowerCase())
+    (c.name || "").toLowerCase().includes(query.toLowerCase())
   );
 
-  const handleSend = (e) => {
+  const handleSend = async (e) => {
     e.preventDefault();
     const text = draft.trim();
     if (!text || !activeId) return;
 
-    const sent = sendMessage(activeId, text);
-    setMessages((prev) => [...prev, sent]);
     setDraft("");
-    refreshConversations();
-
-    setTyping(true);
-    setTimeout(() => {
-      const reply = receiveAutoReply(activeId);
-      setMessages((prev) => [...prev, reply]);
-      setTyping(false);
-      refreshConversations();
-    }, 1200 + Math.random() * 800);
+    try {
+      const sent = await apiFetch(`/api/conversations/${activeId}/messages`, {
+        method: "POST",
+        body: JSON.stringify({ text }),
+      });
+      setMessages((prev) => [...prev, sent]);
+      loadConversations();
+    } catch (err) {
+      console.error("Failed to send message:", err);
+    }
   };
 
   const handleStartConversation = () => {
     const name = newRecipient.trim();
     if (!name) return;
 
-    const id = createConversation(name);
-    setNewRecipient("");
-    refreshConversations();
-    openConversation(id);
+    const existing = conversations.find(
+      (c) => (c.name || "").toLowerCase() === name.toLowerCase()
+    );
+    if (existing) {
+      setNewRecipient("");
+      setComposerError("");
+      setShowComposer(false);
+      openConversation(existing.id);
+    } else {
+      setComposerError(
+        "To start a new conversation, tap 'Offer to help' or 'Request this' on any Need or Offer."
+      );
+    }
   };
 
-  const handleDeleteConversation = (e, convo) => {
-    e.stopPropagation(); // don't trigger openConversation on the row
+  const handleDeleteConversation = async (e, convo) => {
+    e.stopPropagation();
 
     const confirmed = window.confirm(
       `Delete your conversation with ${convo.name}? This can't be undone.`
     );
     if (!confirmed) return;
 
-    deleteConversation(convo.id);
-    const remaining = getConversations();
-    setConversations(remaining);
-
-    if (activeId === convo.id) {
-      const next = remaining[0]?.id || null;
-      setActiveId(next);
-      setMessages(next ? getMessages(next) : []);
-      if (next) {
-        navigate(`/messages/${next}`, { replace: true });
-      } else {
-        setMobileShowThread(false);
-        navigate("/messages", { replace: true });
+    try {
+      await apiFetch(`/api/conversations/${convo.id}`, { method: "DELETE" });
+      const updated = await loadConversations();
+      if (activeId === convo.id) {
+        const next = updated[0]?.id || null;
+        setActiveId(next);
+        setMessages([]);
+        if (next) {
+          loadMessages(next);
+          navigate(`/messages/${next}`, { replace: true });
+        } else {
+          setMobileShowThread(false);
+          navigate("/messages", { replace: true });
+        }
       }
+    } catch (err) {
+      console.error("Failed to delete conversation:", err);
     }
   };
 
@@ -172,7 +190,10 @@ export default function Messages() {
                     type="text"
                     placeholder="Type recipient name"
                     value={newRecipient}
-                    onChange={(e) => setNewRecipient(e.target.value)}
+                    onChange={(e) => {
+                      setNewRecipient(e.target.value);
+                      if (composerError) setComposerError("");
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
@@ -184,6 +205,11 @@ export default function Messages() {
                   <button className="ms-composer-start" onClick={handleStartConversation}>
                     Start Chat
                   </button>
+                  {composerError && (
+                    <p style={{ color: "#d9534f", fontSize: "12px", marginTop: "6px", width: "100%" }}>
+                      {composerError}
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -216,13 +242,15 @@ export default function Messages() {
                       <div className="ms-convo-top">
                         <strong>{c.name}</strong>
                         <span className="ms-convo-time">
-                          {new Date(c.updatedAt).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
+                          {c.updatedAt
+                            ? new Date(c.updatedAt).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })
+                            : ""}
                         </span>
                       </div>
-                      <p>{getMessages(c.id).slice(-1)[0]?.text || "No messages yet"}</p>
+                      <p>{activeId === c.id && messages.length > 0 ? messages.slice(-1)[0]?.text : "Click to view conversation"}</p>
                     </div>
 
                     {c.unread > 0 && <span className="ms-unread-badge">{c.unread}</span>}
@@ -274,17 +302,20 @@ export default function Messages() {
                   </div>
 
                   <div className="ms-thread-scroll" ref={scrollRef}>
-                    {messages.map((m) => (
-                      <div key={m.id} className={`ms-bubble-row ${m.from === "me" ? "me" : ""}`}>
-                        <div className="ms-bubble">
-                          <p>{m.text}</p>
-                          <span className="ms-bubble-time">
-                            {m.time}
-                            {m.from === "me" && " · Sent"}
-                          </span>
+                    {messages.map((m) => {
+                      const isMe = m.from_ === "me" || m.from === "me";
+                      return (
+                        <div key={m.id} className={`ms-bubble-row ${isMe ? "me" : ""}`}>
+                          <div className="ms-bubble">
+                            <p>{m.text}</p>
+                            <span className="ms-bubble-time">
+                              {m.time}
+                              {isMe && " · Sent"}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
 
                     {typing && (
                       <div className="ms-bubble-row">

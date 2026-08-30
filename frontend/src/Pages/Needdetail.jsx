@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -13,22 +13,64 @@ import {
   ImagePlus,
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar";
-import { getNeedById } from "../data/Needsstore";
-import { isBookmarked, toggleBookmark } from "../data/Bookmarksstore";
+import { apiFetch } from "../api";
 import "../Css/Needs.css";
 import "../Css/Needdetail.css";
-
-const dummyReviews = [
-  { name: "Priya K.", rating: 5, text: "Reliable and kind, showed up right on time." },
-  { name: "Owen R.", rating: 5, text: "Great communicator, would help again." },
-  { name: "Nina W.", rating: 4, text: "Everything went smoothly." },
-];
 
 export default function NeedDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const need = getNeedById(id);
-  const [bookmarked, setBookmarked] = useState(() => (need ? isBookmarked(need.id, "need") : false));
+  const [need, setNeed] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [bookmarked, setBookmarked] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError("");
+        const data = await apiFetch(`/api/needs/${id}`);
+        setNeed(data);
+        try {
+          const check = await apiFetch(`/api/bookmarks/check?item_id=${id}&item_type=need`);
+          setBookmarked(Boolean(check.bookmarked));
+        } catch {
+          setBookmarked(false);
+        }
+        if (data.owner_user_id) {
+          try {
+            const reviewRows = await apiFetch(`/api/users/${data.owner_user_id}/reviews`);
+            setReviews(reviewRows || []);
+          } catch {
+            setReviews([]);
+          }
+        }
+      } catch (err) {
+        setNeed(null);
+        setError(err.message || "Need not found");
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="nn-page">
+        <div className="nn-shell">
+          <Sidebar tagline="Hyperlocal help requests" />
+          <main className="nn-main">
+            <div className="nd-not-found">
+              <h2>Loading…</h2>
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   if (!need) {
     return (
@@ -38,7 +80,7 @@ export default function NeedDetail() {
           <main className="nn-main">
             <div className="nd-not-found">
               <h2>Need not found</h2>
-              <p>This request may have been removed or the link is incorrect.</p>
+              <p>{error || "This request may have been removed or the link is incorrect."}</p>
               <Link to="/needs" className="nf-back">
                 <ArrowLeft size={15} />
                 Back to Needs
@@ -49,6 +91,48 @@ export default function NeedDetail() {
       </div>
     );
   }
+
+  const handleBookmark = async () => {
+    try {
+      const result = await apiFetch("/api/bookmarks/toggle", {
+        method: "POST",
+        body: JSON.stringify({ item_id: need.id, item_type: "need" }),
+      });
+      setBookmarked(Boolean(result.bookmarked));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleReport = async () => {
+    const reason = window.prompt("Why are you reporting this need?");
+    if (!reason || !reason.trim()) return;
+    try {
+      await apiFetch(`/api/needs/${need.id}/report`, {
+        method: "POST",
+        body: JSON.stringify({ reason: reason.trim() }),
+      });
+      window.alert("Report submitted.");
+    } catch (err) {
+      window.alert(err.message || "Could not submit report.");
+    }
+  };
+
+  const handleOfferHelp = async () => {
+    if (!need.owner_user_id) {
+      navigate("/messages");
+      return;
+    }
+    try {
+      const convo = await apiFetch("/api/conversations", {
+        method: "POST",
+        body: JSON.stringify({ other_user_id: need.owner_user_id }),
+      });
+      navigate(`/messages/${convo.id}`);
+    } catch {
+      navigate("/messages");
+    }
+  };
 
   return (
     <div className="nn-page">
@@ -62,11 +146,10 @@ export default function NeedDetail() {
           </button>
 
           <div className="nd-layout">
-            {/* Left column */}
             <div className="nd-primary">
               <div className="nd-gallery">
                 <ImagePlus size={40} />
-                <span>No photo provided</span>
+                <span>{need.photo ? "Photo on file" : "No photo provided"}</span>
               </div>
 
               <div className="nd-card">
@@ -84,15 +167,15 @@ export default function NeedDetail() {
                 <h1 className="nd-title">{need.title}</h1>
 
                 <div className="nd-meta-row">
-                  <span><MapPin size={13} /> {need.location} • {need.distance} km</span>
+                  <span><MapPin size={13} /> {need.location}{need.distance != null ? ` • ${need.distance} km` : ""}</span>
                   <span><Clock3 size={13} /> {need.duration}</span>
                 </div>
 
                 <p className="nd-description">{need.description}</p>
 
-                {need.tags?.length > 0 && (
+                {(need.tags || []).length > 0 && (
                   <div className="nn-tags">
-                    {need.tags.map((tag) => (
+                    {(need.tags || []).map((tag) => (
                       <span key={tag} className="nn-tag">{tag}</span>
                     ))}
                   </div>
@@ -102,29 +185,32 @@ export default function NeedDetail() {
               <div className="nd-card">
                 <h2 className="nd-section-title">Reviews</h2>
                 <div className="nd-reviews">
-                  {dummyReviews.map((r) => (
-                    <div key={r.name} className="nd-review">
-                      <div className="nd-review-top">
-                        <strong>{r.name}</strong>
-                        <span className="nd-stars">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <Star
-                              key={i}
-                              size={13}
-                              fill={i < r.rating ? "#e8a23d" : "none"}
-                              color={i < r.rating ? "#e8a23d" : "#dde6df"}
-                            />
-                          ))}
-                        </span>
+                  {reviews.length === 0 ? (
+                    <p>No reviews yet.</p>
+                  ) : (
+                    reviews.map((r, index) => (
+                      <div key={`${r.reviewer_name}-${index}`} className="nd-review">
+                        <div className="nd-review-top">
+                          <strong>{r.reviewer_name}</strong>
+                          <span className="nd-stars">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                size={13}
+                                fill={i < (r.rating || 0) ? "#e8a23d" : "none"}
+                                color={i < (r.rating || 0) ? "#e8a23d" : "#dde6df"}
+                              />
+                            ))}
+                          </span>
+                        </div>
+                        <p>{r.review_text}</p>
                       </div>
-                      <p>{r.text}</p>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Right column */}
             <div className="nd-side">
               <div className="nd-card">
                 <div className="nd-owner-row">
@@ -138,7 +224,7 @@ export default function NeedDetail() {
                   </div>
                 </div>
 
-                <button className="nd-request-btn" onClick={() => navigate("/messages")}>
+                <button className="nd-request-btn" onClick={handleOfferHelp}>
                   <MessageCircle size={16} />
                   Offer to help
                 </button>
@@ -146,16 +232,25 @@ export default function NeedDetail() {
                 <div className="nd-action-row">
                   <button
                     className={`nd-action-btn ${bookmarked ? "active" : ""}`}
-                    onClick={() => setBookmarked(toggleBookmark(need.id, "need"))}
+                    onClick={handleBookmark}
                   >
                     <Bookmark size={15} fill={bookmarked ? "#e8a23d" : "none"} />
                     Save
                   </button>
-                  <button className="nd-action-btn">
+                  <button
+                    className="nd-action-btn"
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({ title: need.title, url: window.location.href }).catch(() => {});
+                      } else {
+                        navigator.clipboard?.writeText(window.location.href);
+                      }
+                    }}
+                  >
                     <Share2 size={15} />
                     Share
                   </button>
-                  <button className="nd-action-btn">
+                  <button className="nd-action-btn" onClick={handleReport}>
                     <Flag size={15} />
                     Report
                   </button>
@@ -167,7 +262,7 @@ export default function NeedDetail() {
                 <div className="nd-detail-list">
                   <div><span>Location</span><strong>{need.location}</strong></div>
                   <div><span>Duration</span><strong>{need.duration}</strong></div>
-                  <div><span>Distance</span><strong>{need.distance} km</strong></div>
+                  <div><span>Distance</span><strong>{need.distance != null ? `${need.distance} km` : "—"}</strong></div>
                   <div><span>Urgency</span><strong className="nd-capitalize">{need.urgency}</strong></div>
                 </div>
               </div>

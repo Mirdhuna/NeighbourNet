@@ -13,6 +13,7 @@ import {
   LogOut,
   X,
 } from "lucide-react";
+import { clearAuthStorage } from "../api";
 import "../Css/Sidebar.css";
 
 const navItems = [
@@ -42,12 +43,8 @@ export default function Sidebar({
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    try {
-      localStorage.removeItem("neighbornet_session");
-      sessionStorage.removeItem("neighbornet_session");
-    } catch {
-      // ignore storage errors
-    }
+    clearAuthStorage();
+
     if (onLogout) onLogout();
     else navigate("/");
   };

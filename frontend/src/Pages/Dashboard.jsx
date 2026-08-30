@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   Bookmark,
   MapPin,
@@ -8,54 +9,52 @@ import {
   MessageCircle,
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar";
+import { apiFetch } from "../api";
 import "../Css/Dashboard.css";
 
 export default function NeighbourNetDashboard() {
-  // Dummy stats and data – you can later replace with real API data
-  const stats = [
-    { label: "Neighbors joined", value: "4,210+", accent: "blue" },
-    { label: "Needs posted", value: "8,730+", accent: "green" },
-    { label: "Offers created", value: "6,120+", accent: "cyan" },
-    { label: "Successful matches", value: "5,340+", accent: "violet" },
-  ];
+  const [stats, setStats] = useState([
+    { label: "Neighbors joined", value: "—", accent: "blue" },
+    { label: "Needs posted", value: "—", accent: "green" },
+    { label: "Offers created", value: "—", accent: "cyan" },
+    { label: "Successful matches", value: "—", accent: "violet" },
+  ]);
+  const [trustScore, setTrustScore] = useState("—");
+  const [completed, setCompleted] = useState("—");
+  const [nearbyNeeds, setNearbyNeeds] = useState([]);
+  const [myNeeds, setMyNeeds] = useState([]);
+  const [myOffers, setMyOffers] = useState([]);
+  const [pendingChats, setPendingChats] = useState([]);
 
-  const nearbyNeeds = [
-    {
-      id: "need-1",
-      title: "Borrow a drill for weekend DIY",
-      owner: "Priya",
-      distance: "1.2 km",
-      location: "Udumalaippettai",
-      urgency: "medium",
-    },
-    {
-      id: "need-2",
-      title: "Emergency ride to hospital",
-      owner: "Naveen",
-      distance: "2.4 km",
-      location: "Udumalaippettai",
-      urgency: "emergency",
-    },
-  ];
-
-  const nearbyOffers = [
-    {
-      id: "offer-1",
-      title: "Laptop repair & setup",
-      owner: "Aarav",
-      distance: "0.5 km",
-      location: "Udumalaippettai",
-      type: "Service",
-    },
-    {
-      id: "offer-2",
-      title: "Borrow a cycle for evening ride",
-      owner: "Karthik",
-      distance: "0.9 km",
-      location: "Udumalaippettai",
-      type: "Item",
-    },
-  ];
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [userStats, nearbyN, _nearbyO, mineN, mineO, convos] = await Promise.all([
+          apiFetch("/api/dashboard/stats"),
+          apiFetch("/api/dashboard/nearby-needs"),
+          apiFetch("/api/dashboard/nearby-offers"),
+          apiFetch("/api/needs/mine"),
+          apiFetch("/api/offers/mine"),
+          apiFetch("/api/conversations"),
+        ]);
+        setTrustScore(userStats.trust_score != null ? `${userStats.trust_score} / 100` : "—");
+        setCompleted(userStats.total_completed ?? "—");
+        setStats([
+          { label: "Your needs", value: String(userStats.total_needs ?? 0), accent: "blue" },
+          { label: "Your offers", value: String(userStats.total_offers ?? 0), accent: "green" },
+          { label: "Your responses", value: String(userStats.total_responses ?? 0), accent: "cyan" },
+          { label: "Completed", value: String(userStats.total_completed ?? 0), accent: "violet" },
+        ]);
+        setNearbyNeeds(nearbyN || []);
+        setMyNeeds((mineN || []).filter((n) => n.status === "active" || !n.status));
+        setMyOffers(mineO || []);
+        setPendingChats((convos || []).filter((c) => (c.unread || 0) > 0));
+      } catch {
+        // keep empty dashboard rather than dummy neighbor names
+      }
+    };
+    load();
+  }, []);
 
   return (
     <div className="dashboard-page">
@@ -80,12 +79,12 @@ export default function NeighbourNetDashboard() {
               <div className="dashboard-header-pill">
                 <Activity className="dashboard-header-pill-icon dashboard-header-pill-icon--trust" size={16} />
                 <span>Trust score:</span>
-                <span className="dashboard-header-pill-value">92 / 100</span>
+                <span className="dashboard-header-pill-value">{trustScore}</span>
               </div>
               <div className="dashboard-header-pill">
                 <CheckCircle2 className="dashboard-header-pill-icon dashboard-header-pill-icon--matches" size={16} />
                 <span>Completed requests:</span>
-                <span className="dashboard-header-pill-value">42</span>
+                <span className="dashboard-header-pill-value">{completed}</span>
               </div>
             </div>
           </div>
@@ -134,8 +133,14 @@ export default function NeighbourNetDashboard() {
             </div>
 
             <div className="dashboard-panel-list">
-              {nearbyNeeds.map((need) => (
-                <div key={need.id} className="dashboard-need-card">
+              {nearbyNeeds.length === 0 ? (
+                <DashboardEmptyState
+                  title="No nearby needs"
+                  description="When neighbors post requests, they will appear here."
+                />
+              ) : (
+                nearbyNeeds.map((need) => (
+                <Link to={`/needs/${need.id}`} key={need.id} className="dashboard-need-card">
                   <div className="dashboard-need-main">
                     <p className="dashboard-need-title">{need.title}</p>
                     <span className={`dashboard-need-badge dashboard-need-badge--${need.urgency}`}>
@@ -145,11 +150,12 @@ export default function NeighbourNetDashboard() {
                     </span>
                   </div>
                   <p className="dashboard-need-meta">
-                    by <span className="dashboard-need-owner">{need.owner}</span> •{" "}
-                    {need.distance} • {need.location}
+                    by <span className="dashboard-need-owner">{need.owner}</span>
+                    {need.distance != null ? ` • ${need.distance}` : ""} • {need.location}
                   </p>
-                </div>
-              ))}
+                </Link>
+                ))
+              )}
             </div>
           </div>
 
@@ -159,12 +165,25 @@ export default function NeighbourNetDashboard() {
             <p className="dashboard-panel-subtitle">
               Needs you’ve posted that are still active or in progress.
             </p>
+            {myNeeds.length === 0 ? (
             <DashboardEmptyState
               title="No active requests"
               description="Post a new need to get help from neighbors nearby."
               actionLabel="Create need"
               actionTo="/needs/new"
             />
+            ) : (
+              <div className="dashboard-panel-list">
+                {myNeeds.map((need) => (
+                  <Link to={`/needs/${need.id}`} key={need.id} className="dashboard-need-card">
+                    <div className="dashboard-need-main">
+                      <p className="dashboard-need-title">{need.title}</p>
+                    </div>
+                    <p className="dashboard-need-meta">{need.location}</p>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* My offers */}
@@ -173,22 +192,28 @@ export default function NeighbourNetDashboard() {
             <p className="dashboard-panel-subtitle">
               Items or services you’re currently offering to your community.
             </p>
+            {myOffers.length === 0 ? (
+              <DashboardEmptyState
+                title="No offers yet"
+                description="Share an item or skill with neighbors nearby."
+                actionLabel="Create offer"
+                actionTo="/offers/new"
+              />
+            ) : (
             <div className="dashboard-panel-list">
-              {nearbyOffers.map((offer) => (
-                <div key={offer.id} className="dashboard-offer-card">
+              {myOffers.map((offer) => (
+                <Link to={`/offers/${offer.id}`} key={offer.id} className="dashboard-offer-card">
                   <div className="dashboard-offer-main">
                     <p className="dashboard-offer-title">{offer.title}</p>
                     <span className="dashboard-offer-badge">
-                      {offer.type}
+                      {offer.condition || "Offer"}
                     </span>
                   </div>
-                  <p className="dashboard-offer-meta">
-                    by <span className="dashboard-offer-owner">{offer.owner}</span> •{" "}
-                    {offer.distance} • {offer.location}
-                  </p>
-                </div>
+                  <p className="dashboard-offer-meta">{offer.location}</p>
+                </Link>
               ))}
             </div>
+            )}
           </div>
         </section>
 
@@ -221,10 +246,23 @@ export default function NeighbourNetDashboard() {
               </div>
               <MessageCircle className="dashboard-panel-icon dashboard-panel-icon--blue" size={18} />
             </div>
+            {pendingChats.length === 0 ? (
             <DashboardEmptyState
               title="No pending chats"
               description="Once neighbors respond to your needs or offers, chats will appear here."
             />
+            ) : (
+              <div className="dashboard-panel-list">
+                {pendingChats.map((chat) => (
+                  <Link to={`/messages/${chat.id}`} key={chat.id} className="dashboard-offer-card">
+                    <div className="dashboard-offer-main">
+                      <p className="dashboard-offer-title">{chat.name}</p>
+                      <span className="dashboard-offer-badge">{chat.unread} unread</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </main>

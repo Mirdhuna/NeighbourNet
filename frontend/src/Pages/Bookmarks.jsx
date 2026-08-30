@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import {
   Bookmark,
@@ -9,7 +10,7 @@ import {
   Gift,
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar";
-import { getBookmarkedListings, removeBookmark } from "../data/Bookmarksstore";
+import { apiFetch } from "../api";
 import "../Css/Bookmarks.css";
 
 const FILTERS = [
@@ -27,8 +28,21 @@ const urgencyLabel = {
 
 export default function Bookmarks() {
   const navigate = useNavigate();
-  const [listings, setListings] = useState(getBookmarkedListings());
+  const [listings, setListings] = useState([]);
   const [filter, setFilter] = useState("all");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await apiFetch("/api/bookmarks");
+        setListings(data || []);
+      } catch (err) {
+        setError(err.message || "Could not load bookmarks");
+      }
+    };
+    load();
+  }, []);
 
   const visible = useMemo(() => {
     if (filter === "all") return listings;
@@ -44,14 +58,24 @@ export default function Bookmarks() {
     [listings]
   );
 
-  const handleUnbookmark = (e, listing) => {
+  const handleUnbookmark = async (e, listing) => {
     e.stopPropagation();
-    removeBookmark(listing.id, listing.bookmarkType);
-    setListings((prev) =>
-      prev.filter(
-        (l) => !(l.id === listing.id && l.bookmarkType === listing.bookmarkType)
-      )
-    );
+    try {
+      await apiFetch("/api/bookmarks/toggle", {
+        method: "POST",
+        body: JSON.stringify({
+          item_id: listing.id,
+          item_type: listing.bookmarkType,
+        }),
+      });
+      setListings((prev) =>
+        prev.filter(
+          (l) => !(l.id === listing.id && l.bookmarkType === listing.bookmarkType)
+        )
+      );
+    } catch (err) {
+      setError(err.message || "Could not remove bookmark");
+    }
   };
 
   const handleOpen = (listing) => {
@@ -68,6 +92,7 @@ export default function Bookmarks() {
             <div>
               <h1>Bookmarks</h1>
               <p>Needs and offers you've saved to come back to later.</p>
+              {error && <p>{error}</p>}
             </div>
           </div>
 

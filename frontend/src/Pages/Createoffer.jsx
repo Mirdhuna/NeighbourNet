@@ -8,7 +8,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar";
-import { addOffer } from "../data/Offerstore";
+import { apiFetch } from "../api";
 import "../Css/Offers.css";
 import "../Css/Offerform.css";
 
@@ -35,8 +35,9 @@ export default function CreateOffer() {
     setImageName(file ? file.name : "");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
 
     if (!title.trim() || !description.trim() || !location.trim()) {
       setError("Please fill in the title, description, and location before posting.");
@@ -45,22 +46,28 @@ export default function CreateOffer() {
     setError("");
     setSubmitting(true);
 
-    const newOffer = addOffer({
-      title: title.trim(),
-      description: description.trim(),
-      category,
-      condition,
-      availability: availability.trim() || "Flexible",
-      pickupOption,
-      location: location.trim(),
-      distance: 0,
-      tags: [category],
-    });
-
-    setTimeout(() => {
+    try {
+      const data = await apiFetch("/api/offers", {
+        method: "POST",
+        body: JSON.stringify({
+          title: title.trim(),
+          description: description.trim(),
+          category,
+          condition,
+          availability: availability.trim() || "Flexible",
+          pickupOption,
+          location: location.trim(),
+          radius: 5,
+          photo: null,
+          tags: [category],
+        }),
+      });
+      navigate(`/offers/${data.id}`);
+    } catch (err) {
+      setError(err.message || "Could not post the offer.");
+    } finally {
       setSubmitting(false);
-      navigate(`/offers/${newOffer.id}`);
-    }, 400);
+    }
   };
 
   return (

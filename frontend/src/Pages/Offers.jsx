@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Search,
@@ -15,8 +15,7 @@ import {
   X,
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar";
-import { getAllOffers } from "../data/Offerstore";
-import { isBookmarked, toggleBookmark } from "../data/Bookmarksstore";
+import { apiFetch } from "../api";
 import "../Css/Offers.css";
 
 const categories = ["All", "Food", "Tools", "Household", "Education", "Equipment"];
@@ -32,56 +31,71 @@ export default function Offers() {
   const [viewMode, setViewMode] = useState("grid");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [allOffers, setAllOffers] = useState([]);
 
-  const allOffers = getAllOffers();
+  useEffect(() => {
+    const loadOffers = async () => {
+      try {
+        setLoading(true);
+        setError("");
+        const params = new URLSearchParams({
+          category,
+          condition,
+          verified_only: verifiedOnly,
+          radius,
+          sort: sortBy,
+        });
+        if (query.trim()) params.append("q", query.trim());
+        const data = await apiFetch(`/api/offers?${params.toString()}`);
+        setAllOffers(data);
+      } catch (err) {
+        setError(err.message || "Could not connect to the server");
+      } finally {
+        setLoading(false);
+      }
+    };
+    const timer = setTimeout(loadOffers, 300);
+    return () => clearTimeout(timer);
+  }, [query, category, condition, verifiedOnly, radius, sortBy]);
 
-  // Which offers are currently bookmarked, keyed by id. Seeded from
-  // bookmarksStore on first render, then kept in sync locally on toggle
-  // so the icon updates instantly without re-reading localStorage.
-  const [bookmarkedIds, setBookmarkedIds] = useState(() => {
-    const set = new Set();
-    allOffers.forEach((o) => {
-      if (isBookmarked(o.id, "offer")) set.add(o.id);
-    });
-    return set;
-  });
+  const [bookmarkedIds, setBookmarkedIds] = useState(() => new Set());
 
-  const handleToggleBookmark = (e, offer) => {
+  useEffect(() => {
+    const loadBookmarks = async () => {
+      try {
+        const rows = await apiFetch("/api/bookmarks");
+        const next = new Set();
+        rows.forEach((item) => {
+          if (item.bookmarkType === "offer") next.add(item.id);
+        });
+        setBookmarkedIds(next);
+      } catch {
+        // optional
+      }
+    };
+    loadBookmarks();
+  }, [allOffers]);
+
+  const handleToggleBookmark = async (e, offer) => {
     e.preventDefault();
     e.stopPropagation();
-    const nowBookmarked = toggleBookmark(offer.id, "offer");
-    setBookmarkedIds((prev) => {
-      const next = new Set(prev);
-      if (nowBookmarked) next.add(offer.id);
-      else next.delete(offer.id);
-      return next;
-    });
+    try {
+      const result = await apiFetch("/api/bookmarks/toggle", {
+        method: "POST",
+        body: JSON.stringify({ item_id: offer.id, item_type: "offer" }),
+      });
+      setBookmarkedIds((prev) => {
+        const next = new Set(prev);
+        if (result.bookmarked) next.add(offer.id);
+        else next.delete(offer.id);
+        return next;
+      });
+    } catch (err) {
+      setError(err.message || "Could not update bookmark");
+    }
   };
 
-  const filteredOffers = useMemo(() => {
-    let result = [...allOffers];
-
-    if (query.trim()) {
-      const q = query.toLowerCase();
-      result = result.filter(
-        (item) =>
-          item.title.toLowerCase().includes(q) ||
-          item.description.toLowerCase().includes(q) ||
-          item.location.toLowerCase().includes(q) ||
-          item.ownerName.toLowerCase().includes(q)
-      );
-    }
-
-    if (category !== "All") result = result.filter((item) => item.category === category);
-    if (condition !== "All") result = result.filter((item) => item.condition === condition);
-    if (verifiedOnly) result = result.filter((item) => item.verified);
-    result = result.filter((item) => item.distance <= Number(radius));
-
-    if (sortBy === "distance") result.sort((a, b) => a.distance - b.distance);
-    else result.sort((a, b) => (a.id < b.id ? 1 : -1));
-
-    return result;
-  }, [allOffers, query, category, condition, verifiedOnly, radius, sortBy]);
+  const filteredOffers = useMemo(() => [...allOffers], [allOffers]);
 
   const stats = {
     total: filteredOffers.length,
@@ -293,12 +307,12 @@ export default function Offers() {
                       <p>{offer.description}</p>
 
                       <div className="of-meta-row">
-                        <span><MapPin size={13} /> {offer.location} • {offer.distance} km</span>
+                        <span><MapPin size={13} /> {offer.location}{offer.distance != null ? ` • ${offer.distance} km` : ""}</span>
                         <span><Clock3 size={13} /> {offer.availability}</span>
                       </div>
 
                       <div className="of-tags">
-                        {offer.tags.map((tag) => (
+                        {(offer.tags || []).map((tag) => (
                           <span key={tag} className="of-tag">{tag}</span>
                         ))}
                       </div>
