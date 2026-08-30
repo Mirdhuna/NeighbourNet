@@ -17,6 +17,7 @@ import {
 
 import Sidebar from "../Components/Sidebar";
 import { apiFetch, clearAuthStorage } from "../api";
+import { useTheme } from "../context/ThemeContext";
 import "../Css/Settings.css";
 
 const defaultSettings = {
@@ -35,6 +36,7 @@ const defaultSettings = {
 
 export default function Settings() {
   const navigate = useNavigate();
+  const { darkMode, setDarkMode } = useTheme();
 
   const [settings, setSettings] = useState(defaultSettings);
 
@@ -56,7 +58,12 @@ export default function Settings() {
         setSettings({
           ...defaultSettings,
           ...data,
+          darkMode: typeof data.darkMode === "boolean" ? data.darkMode : darkMode,
         });
+
+        if (typeof data.darkMode === "boolean") {
+          setDarkMode(data.darkMode);
+        }
 
         setForm({
           name: data.name || "",
@@ -85,6 +92,10 @@ export default function Settings() {
         ...defaultSettings,
         ...updated,
       });
+
+      if (typeof updated.darkMode === "boolean") {
+        setDarkMode(updated.darkMode);
+      }
     } catch (err) {
       setError(err.message || "Could not update settings");
     }
@@ -279,16 +290,18 @@ export default function Settings() {
 
                   <button
                     className={`st-switch ${
-                      settings.darkMode ? "on" : ""
+                      darkMode ? "on" : ""
                     }`}
-                    onClick={() =>
-                      patch({
-                        darkMode: !settings.darkMode,
-                      })
-                    }
+                    onClick={() => {
+                      const next = !darkMode;
+                      setDarkMode(next);
+                      setSettings((prev) => ({ ...prev, darkMode: next }));
+                      patch({ darkMode: next });
+                    }}
                     type="button"
+                    aria-label="Toggle dark mode"
                   >
-                    {settings.darkMode ? (
+                    {darkMode ? (
                       <ToggleRight size={22} />
                     ) : (
                       <ToggleLeft size={22} />

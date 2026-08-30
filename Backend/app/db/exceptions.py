@@ -1,3 +1,4 @@
+from __future__ import annotations
 class ProcedureError(Exception):
     """Raised when PostgreSQL RAISE EXCEPTION is returned from a routine."""
 

@@ -146,16 +146,23 @@
   flex-shrink: 0;
 }
 
+.sb-bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+}
+
 .sb-create-btn,
+.sb-theme-btn,
 .sb-logout-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 10px 14px;
+  gap: 6px;
+  padding: 10px 12px;
   border-radius: 12px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   border: none;
   cursor: pointer;
@@ -163,11 +170,13 @@
 }
 
 .sb-create-btn:active,
+.sb-theme-btn:active,
 .sb-logout-btn:active {
   transform: scale(0.98);
 }
 
 .sb-create-btn {
+  width: 100%;
   background: linear-gradient(135deg, #6a8fb8, #4a6fa5);
   color: #ffffff;
   box-shadow: 0 4px 14px -3px rgba(74, 111, 165, 0.4);
@@ -176,12 +185,28 @@
   opacity: 0.94;
 }
 
+.sb-theme-btn {
+  background: rgba(74, 111, 165, 0.1);
+  color: #4a6fa5;
+}
+.sb-theme-btn:hover {
+  background: rgba(74, 111, 165, 0.18);
+}
+
 .sb-logout-btn {
   background: rgba(201, 74, 74, 0.08);
   color: #c94a4a;
 }
 .sb-logout-btn:hover {
   background: rgba(201, 74, 74, 0.15);
+}
+
+html[data-theme="dark"] .sb-theme-btn {
+  background: rgba(142, 180, 224, 0.16);
+  color: #8eb4e0;
+}
+html[data-theme="dark"] .sb-theme-btn:hover {
+  background: rgba(142, 180, 224, 0.25);
 }
 
 /* Backdrop */

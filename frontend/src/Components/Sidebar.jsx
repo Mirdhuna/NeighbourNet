@@ -12,8 +12,11 @@ import {
   Plus,
   LogOut,
   X,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { clearAuthStorage } from "../api";
+import { useTheme } from "../context/ThemeContext";
 import "../Css/Sidebar.css";
 
 const navItems = [
@@ -41,6 +44,8 @@ export default function Sidebar({
   onLogout,
 }) {
   const navigate = useNavigate();
+
+  const { darkMode, toggleTheme } = useTheme();
 
   const handleLogout = () => {
     clearAuthStorage();
@@ -119,14 +124,29 @@ export default function Sidebar({
             </button>
           )}
 
-          <button
-            type="button"
-            className="sb-logout-btn"
-            onClick={handleLogout}
-          >
-            <LogOut size={16} />
-            Logout
-          </button>
+          <div className="sb-bottom-row">
+            <button
+              type="button"
+              className="sb-theme-btn"
+              onClick={toggleTheme}
+              title={`Switch to ${darkMode ? "Light" : "Dark"} Mode`}
+              aria-label={`Switch to ${darkMode ? "Light" : "Dark"} Mode`}
+            >
+              {darkMode ? <Sun size={16} /> : <Moon size={16} />}
+              <span>{darkMode ? "Light Mode" : "Dark Mode"}</span>
+            </button>
+
+            <button
+              type="button"
+              className="sb-logout-btn"
+              onClick={handleLogout}
+              title="Logout"
+              aria-label="Logout"
+            >
+              <LogOut size={16} />
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
       </aside>
     </>

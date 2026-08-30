@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import List, Dict, Optional, Any, Union
 from fastapi import APIRouter, Query
 
 from app.core.deps import CurrentUser, DbConn
@@ -21,12 +23,12 @@ def dashboard_stats(conn: DbConn, user: CurrentUser):
     )
 
 
-@router.get("/activity", response_model=list[ActivityOut])
+@router.get("/activity", response_model=List[ActivityOut])
 def dashboard_activity(conn: DbConn, user: CurrentUser):
     return procedures.fn_user_activity_history(conn, int(user["user_id"]))
 
 
-@router.get("/nearby-needs", response_model=list[NearbyNeedOut])
+@router.get("/nearby-needs", response_model=List[NearbyNeedOut])
 def nearby_needs(
     conn: DbConn,
     user: CurrentUser,
@@ -46,7 +48,7 @@ def nearby_needs(
     ]
 
 
-@router.get("/nearby-offers", response_model=list[NearbyOfferOut])
+@router.get("/nearby-offers", response_model=List[NearbyOfferOut])
 def nearby_offers(
     conn: DbConn,
     user: CurrentUser,

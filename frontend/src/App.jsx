@@ -12,29 +12,32 @@ import Bookmarks from "./Pages/Bookmarks";
 import Profile from "./Pages/Profile";
 import Settings from "./Pages/Settings";
 import Admin from "./Pages/Admin";
+import { ThemeProvider } from "./context/ThemeContext";
 import "./Css/theme-dark.css";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<NeighbourNetLogin />} />
-        <Route path="/login" element={<NeighbourNetLogin />} />
-        <Route path="/dashboard" element={<NeighbourNetDashboard />} />
-        <Route path="/needs" element={<Needs/>}/>
-        <Route path="/needs/new" element={<CreateNeed/>}/>
-        <Route path="/needs/:id" element={<NeedDetail />} />
-        <Route path="/offers" element={<Offers/>}/>
-        <Route path="/offers/:id" element={<OfferDetail/>}/>
-        <Route path="/offers/new" element={<CreateOffer/>}/>
-        <Route path="/messages" element={<Messages/>}/>
-        <Route path="/messages/:id" element={<Messages/>}/>
-        <Route path="/bookmarks" element={<Bookmarks/>}/>
-        <Route path="/profile" element={<Profile/>}/>
-        <Route path="/settings" element={<Settings/>}/>
-        <Route path="/admin" element={<Admin/>}/>
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<NeighbourNetLogin />} />
+          <Route path="/login" element={<NeighbourNetLogin />} />
+          <Route path="/dashboard" element={<NeighbourNetDashboard />} />
+          <Route path="/needs" element={<Needs/>}/>
+          <Route path="/needs/new" element={<CreateNeed/>}/>
+          <Route path="/needs/:id" element={<NeedDetail />} />
+          <Route path="/offers" element={<Offers/>}/>
+          <Route path="/offers/:id" element={<OfferDetail/>}/>
+          <Route path="/offers/new" element={<CreateOffer/>}/>
+          <Route path="/messages" element={<Messages/>}/>
+          <Route path="/messages/:id" element={<Messages/>}/>
+          <Route path="/bookmarks" element={<Bookmarks/>}/>
+          <Route path="/profile" element={<Profile/>}/>
+          <Route path="/settings" element={<Settings/>}/>
+          <Route path="/admin" element={<Admin/>}/>
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import List, Dict, Optional, Any, Union
 from fastapi import APIRouter, status
 
 from app.core.deps import CurrentUser, DbConn
@@ -8,7 +10,7 @@ from app.services import to_int
 router = APIRouter()
 
 
-@router.get("/users/{user_id}/reviews", response_model=list[ReviewOut])
+@router.get("/users/{user_id}/reviews", response_model=List[ReviewOut])
 def get_reviews(user_id: int, conn: DbConn, _user: CurrentUser):
     rows = procedures.fn_get_reviews(conn, user_id)
     return [

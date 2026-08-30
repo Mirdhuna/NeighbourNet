@@ -1,0 +1,48 @@
+2026-08-30 16:07:41.442 IST [37] LOG:  starting PostgreSQL 12.22 (Ubuntu 12.22-0ubuntu0.20.04.4) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0, 64-bit
+2026-08-30 16:07:41.471 IST [37] LOG:  could not bind IPv4 address "127.0.0.1": Address already in use
+2026-08-30 16:07:41.471 IST [37] HINT:  Is another postmaster already running on port 5432? If not, wait a few seconds and retry.
+2026-08-30 16:07:41.472 IST [37] WARNING:  could not create listen socket for "localhost"
+2026-08-30 16:07:41.472 IST [37] FATAL:  could not create any TCP/IP sockets
+2026-08-30 16:07:41.472 IST [37] LOG:  database system is shut down
+2026-08-30 16:07:57.106 IST [21] LOG:  starting PostgreSQL 12.22 (Ubuntu 12.22-0ubuntu0.20.04.4) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0, 64-bit
+2026-08-30 16:07:57.110 IST [21] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-30 16:07:57.157 IST [21] LOG:  listening on Unix socket "/home/nandha/NeighbourNet/.pgdata_socket/.s.PGSQL.5433"
+2026-08-30 16:07:57.298 IST [23] LOG:  database system was shut down at 2026-08-30 16:07:39 IST
+2026-08-30 16:07:57.342 IST [21] LOG:  database system is ready to accept connections
+2026-08-30 16:08:06.913 IST [21] LOG:  starting PostgreSQL 12.22 (Ubuntu 12.22-0ubuntu0.20.04.4) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0, 64-bit
+2026-08-30 16:08:06.914 IST [21] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-30 16:08:06.959 IST [21] LOG:  listening on Unix socket "/home/nandha/NeighbourNet/.pgdata_socket/.s.PGSQL.5433"
+2026-08-30 16:08:07.084 IST [23] LOG:  database system was interrupted; last known up at 2026-08-30 16:07:57 IST
+2026-08-30 16:08:07.706 IST [23] LOG:  database system was not properly shut down; automatic recovery in progress
+2026-08-30 16:08:07.730 IST [23] LOG:  invalid record length at 0/164DB90: wanted 24, got 0
+2026-08-30 16:08:07.730 IST [23] LOG:  redo is not required
+2026-08-30 16:08:07.912 IST [21] LOG:  database system is ready to accept connections
+2026-08-30 16:11:32.386 IST [34] LOG:  starting PostgreSQL 12.22 (Ubuntu 12.22-0ubuntu0.20.04.4) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0, 64-bit
+2026-08-30 16:11:32.387 IST [34] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-30 16:11:32.434 IST [34] LOG:  listening on Unix socket "/home/nandha/NeighbourNet/.pgdata_socket/.s.PGSQL.5433"
+2026-08-30 16:11:32.559 IST [35] LOG:  database system was interrupted; last known up at 2026-08-30 16:08:11 IST
+2026-08-30 16:11:33.401 IST [35] LOG:  database system was not properly shut down; automatic recovery in progress
+2026-08-30 16:11:33.431 IST [35] LOG:  redo starts at 0/164E378
+2026-08-30 16:11:33.508 IST [35] LOG:  invalid record length at 0/175F010: wanted 24, got 0
+2026-08-30 16:11:33.508 IST [35] LOG:  redo done at 0/175EFE8
+2026-08-30 16:11:34.088 IST [34] LOG:  database system is ready to accept connections
+2026-08-30 16:11:55.230 IST [33] LOG:  starting PostgreSQL 12.22 (Ubuntu 12.22-0ubuntu0.20.04.4) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0, 64-bit
+2026-08-30 16:11:55.233 IST [33] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-30 16:11:55.277 IST [33] LOG:  listening on Unix socket "/home/nandha/NeighbourNet/.pgdata_socket/.s.PGSQL.5433"
+2026-08-30 16:11:55.402 IST [34] LOG:  database system was interrupted; last known up at 2026-08-30 16:11:34 IST
+2026-08-30 16:11:56.159 IST [34] LOG:  database system was not properly shut down; automatic recovery in progress
+2026-08-30 16:11:56.179 IST [34] LOG:  redo starts at 0/175F088
+2026-08-30 16:11:56.250 IST [34] LOG:  invalid record length at 0/18B1498: wanted 24, got 0
+2026-08-30 16:11:56.250 IST [34] LOG:  redo done at 0/18B1470
+2026-08-30 16:11:56.825 IST [33] LOG:  database system is ready to accept connections
+2026-08-30 16:12:34.073 IST [33] LOG:  starting PostgreSQL 12.22 (Ubuntu 12.22-0ubuntu0.20.04.4) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0, 64-bit
+2026-08-30 16:12:34.075 IST [33] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-30 16:12:34.118 IST [33] LOG:  listening on Unix socket "/home/nandha/NeighbourNet/.pgdata_socket/.s.PGSQL.5433"
+2026-08-30 16:12:34.256 IST [34] LOG:  database system was interrupted; last known up at 2026-08-30 16:11:56 IST
+2026-08-30 16:12:35.007 IST [34] LOG:  database system was not properly shut down; automatic recovery in progress
+2026-08-30 16:12:35.026 IST [34] LOG:  redo starts at 0/18B1510
+2026-08-30 16:12:35.026 IST [34] LOG:  invalid record length at 0/18B3220: wanted 24, got 0
+2026-08-30 16:12:35.026 IST [34] LOG:  redo done at 0/18B31E8
+2026-08-30 16:12:35.210 IST [33] LOG:  database system is ready to accept connections
+2026-08-30 16:23:11.281 IST [22] FATAL:  pre-existing shared memory block (key 5433001, ID 21) is still in use
+2026-08-30 16:23:11.281 IST [22] HINT:  Terminate any old server processes associated with data directory "/home/nandha/NeighbourNet/.pgdata_cluster".

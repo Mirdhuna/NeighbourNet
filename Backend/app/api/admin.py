@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import List, Dict, Optional, Any, Union
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import HTTPAuthorizationCredentials
 
@@ -106,7 +108,7 @@ def admin_stats(conn: DbConn, _admin: CurrentAdmin):
     )
 
 
-@router.get("/activity", response_model=list[AdminActivityOut])
+@router.get("/activity", response_model=List[AdminActivityOut])
 def admin_activity(
     conn: DbConn,
     _admin: CurrentAdmin,

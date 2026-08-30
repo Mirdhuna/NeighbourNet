@@ -1,4 +1,4 @@
-export const API_BASE = "http://127.0.0.1:8000";
+export const API_BASE = "";
 
 export function getAccessToken() {
   try {
@@ -47,11 +47,21 @@ export async function apiFetch(path, options = {}) {
 
   let response;
   try {
-    response = await fetch(`${API_BASE}${path}`, { ...options, headers });
-  } catch {
-    throw new Error(
-      "Could not reach the server. Check that the API is running and CORS is allowed."
-    );
+    // 1. Try relative endpoint (forwarded by Vite dev proxy)
+    const targetUrl = API_BASE ? `${API_BASE}${path}` : path;
+    response = await fetch(targetUrl, { ...options, headers });
+  } catch (firstErr) {
+    // 2. Fallback to direct backend URL if proxy is unavailable
+    try {
+      response = await fetch(`http://127.0.0.1:8000${path}`, {
+        ...options,
+        headers,
+      });
+    } catch {
+      throw new Error(
+        "Could not reach the server. Make sure the backend server is running on http://127.0.0.1:8000."
+      );
+    }
   }
 
   const text = await response.text();

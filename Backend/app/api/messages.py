@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import List, Dict, Optional, Any, Union
 from fastapi import APIRouter, status
 
 from app.core.deps import CurrentUser, DbConn
@@ -15,7 +17,7 @@ from app.services import map_conversation, map_message
 router = APIRouter()
 
 
-@router.get("", response_model=list[ConversationOut])
+@router.get("", response_model=List[ConversationOut])
 def list_conversations(conn: DbConn, user: CurrentUser):
     rows = procedures.fn_get_conversations(conn, int(user["user_id"]))
     return [map_conversation(row) for row in rows]
@@ -31,7 +33,7 @@ def create_conversation(body: ConversationCreate, conn: DbConn, user: CurrentUse
     return ConversationCreated(id=conversation_id)
 
 
-@router.get("/{conversation_id}/messages", response_model=list[MessageOut])
+@router.get("/{conversation_id}/messages", response_model=List[MessageOut])
 def list_messages(conversation_id: int, conn: DbConn, user: CurrentUser):
     rows = procedures.fn_get_messages(conn, int(user["user_id"]), conversation_id)
     return [map_message(row) for row in rows]

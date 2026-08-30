@@ -1,6 +1,8 @@
+from __future__ import annotations
+from typing import List, Dict, Optional, Any, Union
 from fastapi import APIRouter, HTTPException, Query, status
 
-from app.core.deps import CurrentUser, DbConn
+from app.core.deps import CurrentUser, OptionalCurrentUser, DbConn
 from app.db import procedures
 from app.schemas.auth import MessageResponse
 from app.schemas.offers import OfferCreate, OfferCreated, OfferOut
@@ -9,16 +11,16 @@ from app.services import map_offer
 router = APIRouter()
 
 
-@router.get("/mine", response_model=list[OfferOut])
+@router.get("/mine", response_model=List[OfferOut])
 def my_offers(conn: DbConn, user: CurrentUser):
     rows = procedures.list_my_offers(conn, int(user["user_id"]))
     return [map_offer(row) for row in rows]
 
 
-@router.get("", response_model=list[OfferOut])
+@router.get("", response_model=List[OfferOut])
 def search_offers(
     conn: DbConn,
-    _user: CurrentUser,
+    _user: OptionalCurrentUser = None,
     q: str | None = Query(default=None),
     category: str | None = Query(default="All"),
     condition: str | None = Query(default="All"),
@@ -39,7 +41,7 @@ def search_offers(
 
 
 @router.get("/{offer_id}", response_model=OfferOut)
-def get_offer(offer_id: int, conn: DbConn, _user: CurrentUser):
+def get_offer(offer_id: int, conn: DbConn, _user: OptionalCurrentUser = None):
     row = procedures.fn_get_offer_frontend(conn, offer_id)
     if row is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Offer not found")

@@ -1,6 +1,8 @@
+from __future__ import annotations
+from typing import List, Dict, Optional, Any, Union
 from fastapi import APIRouter, HTTPException, Query, status
 
-from app.core.deps import CurrentUser, DbConn
+from app.core.deps import CurrentUser, OptionalCurrentUser, DbConn
 from app.db import procedures
 from app.schemas.auth import MessageResponse
 from app.schemas.needs import NeedCreate, NeedCreated, NeedOut
@@ -9,16 +11,16 @@ from app.services import map_need
 router = APIRouter()
 
 
-@router.get("/mine", response_model=list[NeedOut])
+@router.get("/mine", response_model=List[NeedOut])
 def my_needs(conn: DbConn, user: CurrentUser):
     rows = procedures.list_my_needs(conn, int(user["user_id"]))
     return [map_need(row) for row in rows]
 
 
-@router.get("", response_model=list[NeedOut])
+@router.get("", response_model=List[NeedOut])
 def search_needs(
     conn: DbConn,
-    _user: CurrentUser,
+    _user: OptionalCurrentUser = None,
     q: str | None = Query(default=None),
     category: str | None = Query(default="All"),
     urgency: str | None = Query(default="All"),
@@ -39,7 +41,7 @@ def search_needs(
 
 
 @router.get("/{need_id}", response_model=NeedOut)
-def get_need(need_id: int, conn: DbConn, _user: CurrentUser):
+def get_need(need_id: int, conn: DbConn, _user: OptionalCurrentUser = None):
     row = procedures.fn_get_need_frontend(conn, need_id)
     if row is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Need not found")

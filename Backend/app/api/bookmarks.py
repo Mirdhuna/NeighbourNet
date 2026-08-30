@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import List, Dict, Optional, Any, Union
 from fastapi import APIRouter, Query
 
 from app.core.deps import CurrentUser, DbConn
@@ -8,7 +10,7 @@ from app.services import map_bookmark
 router = APIRouter()
 
 
-@router.get("", response_model=list[BookmarkOut])
+@router.get("", response_model=List[BookmarkOut])
 def list_bookmarks(conn: DbConn, user: CurrentUser):
     rows = procedures.fn_get_bookmarks(conn, int(user["user_id"]))
     return [map_bookmark(row) for row in rows]

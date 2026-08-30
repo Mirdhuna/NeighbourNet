@@ -1,8 +1,9 @@
+from __future__ import annotations
 """Helpers that map PostgreSQL rows to frontend-shaped JSON."""
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Any
+from typing import List, Dict, Optional, Any, Union, Any
 
 
 def to_float(value: Any) -> float | None:
@@ -23,7 +24,7 @@ def to_str(value: Any) -> str | None:
     return str(value)
 
 
-def tags_list(value: Any) -> list[str]:
+def tags_list(value: Any) -> List[str]:
     if not value:
         return []
     return [str(item) for item in value]
@@ -45,7 +46,7 @@ def format_listing_time(value: Any) -> str | None:
     return str(value)
 
 
-def map_need(row: dict[str, Any]) -> dict[str, Any]:
+def map_need(row: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "id": to_int(row.get("id") or row.get("need_id")),
         "title": row.get("title"),
@@ -67,7 +68,7 @@ def map_need(row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def map_offer(row: dict[str, Any]) -> dict[str, Any]:
+def map_offer(row: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "id": to_int(row.get("id") or row.get("offer_id")),
         "title": row.get("title"),
@@ -91,7 +92,7 @@ def map_offer(row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def map_profile(row: dict[str, Any]) -> dict[str, Any]:
+def map_profile(row: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "user_id": to_int(row.get("user_id")),
         "name": row.get("name"),
@@ -107,7 +108,7 @@ def map_profile(row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def map_settings(row: dict[str, Any]) -> dict[str, Any]:
+def map_settings(row: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "user_id": to_int(row.get("user_id")),
         "name": row.get("name"),
@@ -125,7 +126,7 @@ def map_settings(row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def map_bookmark(row: dict[str, Any]) -> dict[str, Any]:
+def map_bookmark(row: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "id": to_int(row.get("id")),
         "bookmarkType": row.get("bookmark_type"),
@@ -146,7 +147,7 @@ def map_bookmark(row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def map_conversation(row: dict[str, Any]) -> dict[str, Any]:
+def map_conversation(row: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "id": to_int(row.get("id")),
         "name": row.get("name"),
@@ -157,7 +158,7 @@ def map_conversation(row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def map_message(row: dict[str, Any]) -> dict[str, Any]:
+def map_message(row: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "id": to_int(row.get("id")),
         "sender_id": to_int(row.get("sender_id")),

@@ -1,3 +1,4 @@
+from __future__ import annotations
 """Wrappers around existing PostgreSQL functions, procedures, views, and tables.
 
 No business rules are reimplemented here. Every query names an object from
@@ -11,7 +12,7 @@ PostgreSQL notes:
 - Passwords are hashed by pgcrypto inside the SQL. Python must pass plaintext.
 """
 
-from typing import Any
+from typing import List, Dict, Optional, Any, Union, Any
 
 from psycopg import Connection
 from psycopg.errors import Error as PsycopgError, RaiseException
@@ -36,12 +37,12 @@ def _execute(conn: Connection, query: str, params: tuple | dict | None = None):
         raise ProcedureError(_message(exc) or "Database error") from exc
 
 
-def _fetchone(conn: Connection, query: str, params: tuple | dict | None = None) -> dict[str, Any] | None:
+def _fetchone(conn: Connection, query: str, params: tuple | dict | None = None) -> Dict[str, Any] | None:
     cur = _execute(conn, query, params)
     return cur.fetchone()
 
 
-def _fetchall(conn: Connection, query: str, params: tuple | dict | None = None) -> list[dict[str, Any]]:
+def _fetchall(conn: Connection, query: str, params: tuple | dict | None = None) -> List[Dict[str, Any]]:
     cur = _execute(conn, query, params)
     return list(cur.fetchall())
 
@@ -53,7 +54,7 @@ def _scalar(conn: Connection, query: str, params: tuple | dict | None = None) ->
     return next(iter(row.values()))
 
 
-def _call(conn: Connection, query: str, params: tuple | dict | None = None) -> dict[str, Any] | None:
+def _call(conn: Connection, query: str, params: tuple | dict | None = None) -> Dict[str, Any] | None:
     """CALL a procedure. Fetch INOUT/OUT result row when PostgreSQL returns one."""
     cur = _execute(conn, query, params)
     if cur.description:
@@ -61,7 +62,7 @@ def _call(conn: Connection, query: str, params: tuple | dict | None = None) -> d
     return None
 
 
-def _inout_id(row: dict[str, Any] | None) -> int | None:
+def _inout_id(row: Dict[str, Any] | None) -> int | None:
     if not row:
         return None
     for value in row.values():
@@ -74,7 +75,7 @@ def _inout_id(row: dict[str, Any] | None) -> int | None:
 # Table reads used only for auth session checks (no matching SQL function)
 # ---------------------------------------------------------------------------
 
-def fetch_active_user(conn: Connection, user_id: int) -> dict[str, Any] | None:
+def fetch_active_user(conn: Connection, user_id: int) -> Dict[str, Any] | None:
     return _fetchone(
         conn,
         """
@@ -86,7 +87,7 @@ def fetch_active_user(conn: Connection, user_id: int) -> dict[str, Any] | None:
     )
 
 
-def fetch_admin(conn: Connection, admin_id: int) -> dict[str, Any] | None:
+def fetch_admin(conn: Connection, admin_id: int) -> Dict[str, Any] | None:
     return _fetchone(
         conn,
         """
@@ -103,7 +104,7 @@ def count_admins(conn: Connection) -> int:
     return int(value or 0)
 
 
-def admin_login(conn: Connection, login: str, password: str) -> dict[str, Any] | None:
+def admin_login(conn: Connection, login: str, password: str) -> Dict[str, Any] | None:
     """There is no fn_admin_login. Mirror fn_login against the admin table + crypt()."""
     return _fetchone(
         conn,
@@ -122,7 +123,7 @@ def admin_login(conn: Connection, login: str, password: str) -> dict[str, Any] |
     )
 
 
-def list_categories(conn: Connection) -> list[dict[str, Any]]:
+def list_categories(conn: Connection) -> List[Dict[str, Any]]:
     return _fetchall(
         conn,
         """
@@ -133,7 +134,7 @@ def list_categories(conn: Connection) -> list[dict[str, Any]]:
     )
 
 
-def list_my_needs(conn: Connection, user_id: int) -> list[dict[str, Any]]:
+def list_my_needs(conn: Connection, user_id: int) -> List[Dict[str, Any]]:
     return _fetchall(
         conn,
         """
@@ -146,7 +147,7 @@ def list_my_needs(conn: Connection, user_id: int) -> list[dict[str, Any]]:
     )
 
 
-def list_my_offers(conn: Connection, user_id: int) -> list[dict[str, Any]]:
+def list_my_offers(conn: Connection, user_id: int) -> List[Dict[str, Any]]:
     return _fetchall(
         conn,
         """
@@ -201,7 +202,7 @@ def sp_register_user(
     return int(fallback["user_id"]) if fallback else None
 
 
-def fn_login(conn: Connection, login: str, password: str) -> dict[str, Any] | None:
+def fn_login(conn: Connection, login: str, password: str) -> Dict[str, Any] | None:
     return _fetchone(
         conn,
         "SELECT * FROM fn_login(%s, %s)",
@@ -209,7 +210,7 @@ def fn_login(conn: Connection, login: str, password: str) -> dict[str, Any] | No
     )
 
 
-def fn_get_profile(conn: Connection, user_id: int) -> dict[str, Any] | None:
+def fn_get_profile(conn: Connection, user_id: int) -> Dict[str, Any] | None:
     return _fetchone(conn, "SELECT * FROM fn_get_profile(%s::bigint)", (user_id,))
 
 
@@ -245,7 +246,7 @@ def sp_deactivate_account(conn: Connection, user_id: int) -> None:
     _call(conn, "CALL sp_deactivate_account(%s::bigint)", (user_id,))
 
 
-def fn_get_settings(conn: Connection, user_id: int) -> dict[str, Any] | None:
+def fn_get_settings(conn: Connection, user_id: int) -> Dict[str, Any] | None:
     return _fetchone(conn, "SELECT * FROM fn_get_settings(%s::bigint)", (user_id,))
 
 
@@ -304,7 +305,7 @@ def fn_search_needs_frontend(
     urgency: str | None,
     verified_only: bool,
     sort: str | None,
-) -> list[dict[str, Any]]:
+) -> List[Dict[str, Any]]:
 
     return _fetchall(
         conn,
@@ -330,7 +331,7 @@ def fn_search_offers_frontend(
     condition: str | None,
     verified_only: bool,
     sort: str | None,
-) -> list[dict[str, Any]]:
+) -> List[Dict[str, Any]]:
     return _fetchall(
         conn,
         """
@@ -347,7 +348,7 @@ def fn_search_offers_frontend(
     )
 
 
-def fn_get_need_frontend(conn: Connection, need_id: int) -> dict[str, Any] | None:
+def fn_get_need_frontend(conn: Connection, need_id: int) -> Dict[str, Any] | None:
     row = _fetchone(conn, "SELECT * FROM fn_get_need_frontend(%s::bigint)", (need_id,))
     if row:
         owner = _fetchone(conn, "SELECT user_id FROM needs WHERE need_id = %s::bigint", (need_id,))
@@ -356,7 +357,7 @@ def fn_get_need_frontend(conn: Connection, need_id: int) -> dict[str, Any] | Non
     return row
 
 
-def fn_get_offer_frontend(conn: Connection, offer_id: int) -> dict[str, Any] | None:
+def fn_get_offer_frontend(conn: Connection, offer_id: int) -> Dict[str, Any] | None:
     row = _fetchone(conn, "SELECT * FROM fn_get_offer_frontend(%s::bigint)", (offer_id,))
     if row:
         owner = _fetchone(conn, "SELECT user_id FROM offers WHERE offer_id = %s::bigint", (offer_id,))
@@ -377,7 +378,7 @@ def sp_post_need(
     location: str,
     radius: float | None,
     photo: str | None,
-    tags: list[str] | None,
+    tags: List[str] | None,
 ) -> int | None:
     row = _call(
         conn,
@@ -439,7 +440,7 @@ def sp_post_offer(
     location: str,
     radius: float | None,
     photo: str | None,
-    tags: list[str] | None,
+    tags: List[str] | None,
 ) -> int | None:
     row = _call(
         conn,
@@ -502,7 +503,7 @@ def sp_remove_offer(conn: Connection, user_id: int, offer_id: int) -> None:
 # Bookmarks
 # ---------------------------------------------------------------------------
 
-def fn_get_bookmarks(conn: Connection, user_id: int) -> list[dict[str, Any]]:
+def fn_get_bookmarks(conn: Connection, user_id: int) -> List[Dict[str, Any]]:
     return _fetchall(conn, "SELECT * FROM fn_get_bookmarks(%s::bigint)", (user_id,))
 
 
@@ -558,7 +559,7 @@ def sp_mark_exchange_completed(conn: Connection, need_id: int, response_id: int)
 # Reviews / ratings
 # ---------------------------------------------------------------------------
 
-def fn_get_reviews(conn: Connection, user_id: int) -> list[dict[str, Any]]:
+def fn_get_reviews(conn: Connection, user_id: int) -> List[Dict[str, Any]]:
     return _fetchall(conn, "SELECT * FROM fn_get_reviews(%s::bigint)", (user_id,))
 
 
@@ -574,7 +575,7 @@ def sp_add_review(conn: Connection, reviewer_id: int, reviewed_user_id: int, rev
 # Messages
 # ---------------------------------------------------------------------------
 
-def fn_get_conversations(conn: Connection, user_id: int) -> list[dict[str, Any]]:
+def fn_get_conversations(conn: Connection, user_id: int) -> List[Dict[str, Any]]:
     return _fetchall(conn, "SELECT * FROM fn_get_conversations(%s::bigint)", (user_id,))
 
 
@@ -583,7 +584,7 @@ def fn_get_or_create_conversation(conn: Connection, user_id: int, other_user_id:
     return int(value)
 
 
-def fn_get_messages(conn: Connection, user_id: int, conversation_id: int) -> list[dict[str, Any]]:
+def fn_get_messages(conn: Connection, user_id: int, conversation_id: int) -> List[Dict[str, Any]]:
     return _fetchall(
         conn,
         "SELECT * FROM fn_get_messages(%s::bigint, %s::bigint)",
@@ -608,15 +609,15 @@ def sp_delete_conversation(conn: Connection, user_id: int, conversation_id: int)
 # Dashboard
 # ---------------------------------------------------------------------------
 
-def fn_user_dashboard_stats(conn: Connection, user_id: int) -> dict[str, Any] | None:
+def fn_user_dashboard_stats(conn: Connection, user_id: int) -> Dict[str, Any] | None:
     return _fetchone(conn, "SELECT * FROM fn_user_dashboard_stats(%s::bigint)", (user_id,))
 
 
-def fn_user_activity_history(conn: Connection, user_id: int) -> list[dict[str, Any]]:
+def fn_user_activity_history(conn: Connection, user_id: int) -> List[Dict[str, Any]]:
     return _fetchall(conn, "SELECT * FROM fn_user_activity_history(%s::bigint)", (user_id,))
 
 
-def fn_dashboard_nearby_needs(conn: Connection, user_id: int, radius: float | None) -> list[dict[str, Any]]:
+def fn_dashboard_nearby_needs(conn: Connection, user_id: int, radius: float | None) -> List[Dict[str, Any]]:
     return _fetchall(
         conn,
         "SELECT * FROM fn_dashboard_nearby_needs(%s::bigint, %s::numeric)",
@@ -624,7 +625,7 @@ def fn_dashboard_nearby_needs(conn: Connection, user_id: int, radius: float | No
     )
 
 
-def fn_dashboard_nearby_offers(conn: Connection, user_id: int, radius: float | None) -> list[dict[str, Any]]:
+def fn_dashboard_nearby_offers(conn: Connection, user_id: int, radius: float | None) -> List[Dict[str, Any]]:
     return _fetchall(
         conn,
         "SELECT * FROM fn_dashboard_nearby_offers(%s::bigint, %s::numeric)",
@@ -676,11 +677,11 @@ def sp_register_admin(
     return int(fallback["admin_id"]) if fallback else None
 
 
-def fn_admin_dashboard_stats(conn: Connection) -> dict[str, Any] | None:
+def fn_admin_dashboard_stats(conn: Connection) -> Dict[str, Any] | None:
     return _fetchone(conn, "SELECT * FROM fn_admin_dashboard_stats()")
 
 
-def fn_admin_recent_activity(conn: Connection, limit: int) -> list[dict[str, Any]]:
+def fn_admin_recent_activity(conn: Connection, limit: int) -> List[Dict[str, Any]]:
     return _fetchall(conn, "SELECT * FROM fn_admin_recent_activity(%s::integer)", (limit,))
 
 

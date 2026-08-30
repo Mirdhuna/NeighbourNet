@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import List, Dict, Optional, Any, Union
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -11,7 +13,7 @@ class OfferCreate(BaseModel):
     location: str = Field(min_length=1)
     radius: float | None = Field(default=5.0, gt=0)
     photo: str | None = None
-    tags: list[str] | None = None
+    tags: List[str] | None = None
 
 
 class OfferOut(BaseModel):
@@ -26,7 +28,7 @@ class OfferOut(BaseModel):
     pickupOption: str | None = None
     location: str | None = None
     distance: float | None = None
-    tags: list[str] = []
+    tags: List[str] = []
     ownerName: str | None = None
     ownerInitial: str | None = None
     verified: bool | None = None

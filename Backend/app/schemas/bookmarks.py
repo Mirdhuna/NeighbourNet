@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import List, Dict, Optional, Any, Union
 from pydantic import BaseModel, Field
 
 
@@ -29,7 +31,7 @@ class BookmarkOut(BaseModel):
     urgency: str | None = None
     condition: str | None = None
     category: str | None = None
-    tags: list[str] = []
+    tags: List[str] = []
     requesterInitial: str | None = None
     requesterName: str | None = None
     ownerInitial: str | None = None

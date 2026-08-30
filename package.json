@@ -1,7 +1,11 @@
 {
-  "dependencies": {
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.1"
+  "name": "neighbornet",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "start": "./start_project.sh",
+    "backend": "./Backend/start_backend.sh",
+    "frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build"
   }
 }

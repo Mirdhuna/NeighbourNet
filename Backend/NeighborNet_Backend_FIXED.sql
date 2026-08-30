@@ -2123,11 +2123,18 @@ DO $$
 DECLARE
     v_asha_id BIGINT := NULL;
     v_ravi_id BIGINT := NULL;
+    v_admin_id BIGINT := NULL;
     v_need_id BIGINT := NULL;
     v_need_id_2 BIGINT := NULL;
     v_offer_id BIGINT := NULL;
     v_offer_id_2 BIGINT := NULL;
 BEGIN
+    -- Register demo admin
+    CALL sp_register_admin(
+        'Admin User', 'admin', 'admin@example.com', 'admin123',
+        v_admin_id
+    );
+
     -- Register demo users and capture their generated IDs.
     CALL sp_register_user(
         'Asha Menon', 'asha', 'asha@example.com', 'pass123',

@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import List, Dict, Optional, Any, Union
 from functools import lru_cache
 
 from pydantic import Field
@@ -20,7 +22,7 @@ class Settings(BaseSettings):
     frontend_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 
     @property
-    def cors_origins(self) -> list[str]:
+    def cors_origins(self) -> List[str]:
         return [origin.strip() for origin in self.frontend_origins.split(",") if origin.strip()]
 
 

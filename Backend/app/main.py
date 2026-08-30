@@ -1,3 +1,4 @@
+from __future__ import annotations
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -41,6 +42,7 @@ app = FastAPI(
 settings = get_settings()
 app.add_middleware(
     CORSMiddleware,
+    allow_origin_regex=r"^https?://.*$",
     allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
