@@ -1,0 +1,279 @@
+/* Loaded last so dark surfaces beat hardcoded #fff / #f7fafd in page CSS. */
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] body {
+  color: #f4f7fb !important;
+  background: #0b1018 !important;
+}
+
+html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select {
+  background-color: #141c28 !important;
+  color: #f4f7fb !important;
+  border-color: #3d4f68 !important;
+  caret-color: #f4f7fb;
+}
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: #9aabc0 !important;
+  opacity: 1;
+}
+
+html[data-theme="dark"] option {
+  background: #1a2332;
+  color: #f4f7fb;
+}
+
+/* Hardcoded light panels, chips, rows, and fields */
+html[data-theme="dark"] .st-user-card,
+html[data-theme="dark"] .st-nav-item:hover,
+html[data-theme="dark"] .st-logout-btn,
+html[data-theme="dark"] .st-icon-btn,
+html[data-theme="dark"] .st-outline-btn,
+html[data-theme="dark"] .st-switch-row,
+html[data-theme="dark"] .st-check-row,
+html[data-theme="dark"] .st-security-item,
+html[data-theme="dark"] .st-dropdown,
+html[data-theme="dark"] .st-field input,
+html[data-theme="dark"] .st-dropdown select,
+html[data-theme="dark"] .st-field input:focus,
+html[data-theme="dark"] .st-dropdown select:focus,
+html[data-theme="dark"] .dashboard-header-pill,
+html[data-theme="dark"] .dashboard-need-card,
+html[data-theme="dark"] .dashboard-offer-card,
+html[data-theme="dark"] .dashboard-empty,
+html[data-theme="dark"] .nn-side-stat,
+html[data-theme="dark"] .nn-mini-card,
+html[data-theme="dark"] .nn-side-box,
+html[data-theme="dark"] .nn-ai-pill,
+html[data-theme="dark"] .nn-stat-card,
+html[data-theme="dark"] .nn-search-input,
+html[data-theme="dark"] .nn-search-input:focus,
+html[data-theme="dark"] .nn-select,
+html[data-theme="dark"] .nn-view-btn,
+html[data-theme="dark"] .nn-chip,
+html[data-theme="dark"] .nn-chip:hover,
+html[data-theme="dark"] .nn-select-box,
+html[data-theme="dark"] .nn-toggle,
+html[data-theme="dark"] .nn-clear-btn,
+html[data-theme="dark"] .nn-clear-btn:hover,
+html[data-theme="dark"] .nn-empty-icon,
+html[data-theme="dark"] .nn-bookmark-btn:hover,
+html[data-theme="dark"] .nn-meta-row span,
+html[data-theme="dark"] .nn-tag,
+html[data-theme="dark"] .of-side-stat,
+html[data-theme="dark"] .of-mini-card,
+html[data-theme="dark"] .of-stat-card,
+html[data-theme="dark"] .of-search-input,
+html[data-theme="dark"] .of-search-input:focus,
+html[data-theme="dark"] .of-select,
+html[data-theme="dark"] .of-view-btn,
+html[data-theme="dark"] .of-chip,
+html[data-theme="dark"] .of-chip:hover,
+html[data-theme="dark"] .of-select-box,
+html[data-theme="dark"] .of-toggle,
+html[data-theme="dark"] .of-clear-btn,
+html[data-theme="dark"] .of-clear-btn:hover,
+html[data-theme="dark"] .of-empty-icon,
+html[data-theme="dark"] .of-bookmark-btn:hover,
+html[data-theme="dark"] .of-meta-row span,
+html[data-theme="dark"] .of-tag,
+html[data-theme="dark"] .of-back:hover,
+html[data-theme="dark"] .of-form-input,
+html[data-theme="dark"] .of-form-textarea,
+html[data-theme="dark"] .of-form-select,
+html[data-theme="dark"] .of-form-input:focus,
+html[data-theme="dark"] .of-form-textarea:focus,
+html[data-theme="dark"] .of-form-select:focus,
+html[data-theme="dark"] .of-form-input-icon,
+html[data-theme="dark"] .of-form-input-icon:focus-within,
+html[data-theme="dark"] .of-dropzone,
+html[data-theme="dark"] .of-dropzone:hover,
+html[data-theme="dark"] .nf-back:hover,
+html[data-theme="dark"] .nf-input,
+html[data-theme="dark"] .nf-textarea,
+html[data-theme="dark"] .nf-select,
+html[data-theme="dark"] .nf-input:focus,
+html[data-theme="dark"] .nf-textarea:focus,
+html[data-theme="dark"] .nf-select:focus,
+html[data-theme="dark"] .nf-input-icon,
+html[data-theme="dark"] .nf-input-icon:focus-within,
+html[data-theme="dark"] .nf-dropzone,
+html[data-theme="dark"] .nf-dropzone:hover,
+html[data-theme="dark"] .pf-edit-btn,
+html[data-theme="dark"] .pf-edit-btn:hover,
+html[data-theme="dark"] .pf-field input,
+html[data-theme="dark"] .pf-field textarea,
+html[data-theme="dark"] .pf-field input:focus,
+html[data-theme="dark"] .pf-field textarea:focus,
+html[data-theme="dark"] .pf-cancel-btn,
+html[data-theme="dark"] .pf-cancel-btn:hover,
+html[data-theme="dark"] .pf-tab:hover,
+html[data-theme="dark"] .pf-listing-link,
+html[data-theme="dark"] .ms-list-search,
+html[data-theme="dark"] .ms-composer,
+html[data-theme="dark"] .ms-composer-input,
+html[data-theme="dark"] .ms-composer-start,
+html[data-theme="dark"] .ms-convo:hover,
+html[data-theme="dark"] .ms-back-btn,
+html[data-theme="dark"] .ms-bubble,
+html[data-theme="dark"] .ms-icon-btn:hover,
+html[data-theme="dark"] .ms-text-input,
+html[data-theme="dark"] .ms-text-input:focus,
+html[data-theme="dark"] .ad-close-btn,
+html[data-theme="dark"] .ad-side-mini,
+html[data-theme="dark"] .ad-logout-btn,
+html[data-theme="dark"] .ad-menu-btn,
+html[data-theme="dark"] .ad-range,
+html[data-theme="dark"] .ad-panel-btn.secondary,
+html[data-theme="dark"] .ad-icon-btn,
+html[data-theme="dark"] .bm-filter,
+html[data-theme="dark"] .od-card,
+html[data-theme="dark"] .od-side-card {
+  background-color: #141c28 !important;
+  color: #f4f7fb !important;
+  border-color: #3d4f68;
+}
+
+html[data-theme="dark"] .st-danger-btn {
+  background: #3a221c !important;
+  color: #f0b8a4 !important;
+}
+
+html[data-theme="dark"] .st-user-avatar,
+html[data-theme="dark"] .st-profile-avatar {
+  background: linear-gradient(135deg, #3d5a80, #2a4060) !important;
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .st-kicker,
+html[data-theme="dark"] .dashboard-header-label,
+html[data-theme="dark"] .dashboard-offer-badge,
+html[data-theme="dark"] .nn-badge.category,
+html[data-theme="dark"] .of-badge.category,
+html[data-theme="dark"] .nn-toggle.on,
+html[data-theme="dark"] .of-toggle.on,
+html[data-theme="dark"] .pf-type-chip.offer,
+html[data-theme="dark"] .bm-type-chip.offer {
+  background: rgba(142, 180, 224, 0.22) !important;
+  color: #d7e6f8 !important;
+}
+
+html[data-theme="dark"] .dashboard-need-badge--medium,
+html[data-theme="dark"] .pf-type-chip.need,
+html[data-theme="dark"] .bm-type-chip.need {
+  background: rgba(224, 180, 154, 0.22) !important;
+  color: #f3d0bc !important;
+}
+
+html[data-theme="dark"] .ms-bubble-row.me .ms-bubble {
+  background: #2d4a72 !important;
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .sb-root {
+  background: #141c28 !important;
+  border-right-color: #3d4f68 !important;
+}
+
+html[data-theme="dark"] .sb-logo-text,
+html[data-theme="dark"] .sb-nav-item:hover {
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .sb-tagline,
+html[data-theme="dark"] .sb-nav-item {
+  color: #c5d0de !important;
+}
+
+html[data-theme="dark"] .sb-nav-item:hover {
+  background: #243044 !important;
+}
+
+html[data-theme="dark"] .sb-nav-item.active {
+  background: rgba(142, 180, 224, 0.2) !important;
+  color: #d7e6f8 !important;
+}
+
+html[data-theme="dark"] .nn-page {
+  background: #0b1018 !important;
+}
+
+html[data-theme="dark"] .st-side-note,
+html[data-theme="dark"] .nd-action-btn,
+html[data-theme="dark"] .nd-action-btn:hover,
+html[data-theme="dark"] .od-action-btn,
+html[data-theme="dark"] .od-gallery,
+html[data-theme="dark"] .bm-tab:hover,
+html[data-theme="dark"] .bm-tag,
+html[data-theme="dark"] .nf-back:hover {
+  background-color: #141c28 !important;
+  color: #f4f7fb !important;
+  border-color: #3d4f68;
+}
+
+html[data-theme="dark"] .od-title,
+html[data-theme="dark"] .od-description,
+html[data-theme="dark"] .od-section-title,
+html[data-theme="dark"] .od-review-top,
+html[data-theme="dark"] .od-owner-name,
+html[data-theme="dark"] .od-detail-list strong,
+html[data-theme="dark"] .od-not-found h2 {
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .od-meta-row,
+html[data-theme="dark"] .od-review p,
+html[data-theme="dark"] .od-owner-sub,
+html[data-theme="dark"] .od-action-btn,
+html[data-theme="dark"] .od-detail-list span,
+html[data-theme="dark"] .od-not-found p {
+  color: #c5d0de !important;
+}
+
+html[data-theme="dark"] .od-card {
+  border-color: #3d4f68 !important;
+}
+
+html[data-theme="dark"] .st-header h1,
+html[data-theme="dark"] .st-card-head h2,
+html[data-theme="dark"] .st-profile-meta strong,
+html[data-theme="dark"] .st-switch-row strong,
+html[data-theme="dark"] .st-security-item strong,
+html[data-theme="dark"] .st-check-row span,
+html[data-theme="dark"] .dashboard-header-title,
+html[data-theme="dark"] .dashboard-stat-value,
+html[data-theme="dark"] .dashboard-panel-title,
+html[data-theme="dark"] .dashboard-need-title,
+html[data-theme="dark"] .dashboard-offer-title {
+  color: #f4f7fb !important;
+}
+
+html[data-theme="dark"] .st-header p,
+html[data-theme="dark"] .st-switch-row p,
+html[data-theme="dark"] .st-security-item p,
+html[data-theme="dark"] .st-profile-meta span,
+html[data-theme="dark"] .dashboard-header-subtitle,
+html[data-theme="dark"] .dashboard-stat-label,
+html[data-theme="dark"] .dashboard-panel-subtitle,
+html[data-theme="dark"] .dashboard-need-meta,
+html[data-theme="dark"] .dashboard-offer-meta {
+  color: #c5d0de !important;
+}
+
+html[data-theme="dark"] .nn-chip.active,
+html[data-theme="dark"] .of-chip.active,
+html[data-theme="dark"] .bm-tab.active {
+  background: linear-gradient(135deg, #4a6fa5, #3d5a80) !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .st-nav-item.active {
+  background: rgba(142, 180, 224, 0.2) !important;
+  color: #d7e6f8 !important;
+}

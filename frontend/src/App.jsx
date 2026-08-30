@@ -12,6 +12,7 @@ import Bookmarks from "./Pages/Bookmarks";
 import Profile from "./Pages/Profile";
 import Settings from "./Pages/Settings";
 import Admin from "./Pages/Admin";
+import "./Css/theme-dark.css";
 
 function App() {
   return (

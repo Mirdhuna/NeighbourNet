@@ -19,14 +19,16 @@ const defaultSettings = {
 };
 
 function load() {
+  let settings = defaultSettings;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return { ...defaultSettings, ...JSON.parse(raw) };
+    if (raw) settings = { ...defaultSettings, ...JSON.parse(raw) };
+    else save(defaultSettings);
   } catch {
-    // fall through to reseed
+    save(defaultSettings);
   }
-  save(defaultSettings);
-  return defaultSettings;
+  applyTheme(settings.darkMode);
+  return settings;
 }
 
 function save(settings) {
@@ -35,6 +37,12 @@ function save(settings) {
   } catch {
     // localStorage unavailable (e.g. private mode) — fail silently
   }
+}
+
+/** Apply light/dark palette on <html data-theme="...">. */
+export function applyTheme(darkMode) {
+  if (typeof document === "undefined") return;
+  document.documentElement.setAttribute("data-theme", darkMode ? "dark" : "light");
 }
 
 /** The current user's settings. */
@@ -50,6 +58,9 @@ export function updateSettings(partial) {
   const current = load();
   const merged = { ...current, ...partial };
   save(merged);
+  if (Object.prototype.hasOwnProperty.call(partial, "darkMode")) {
+    applyTheme(merged.darkMode);
+  }
   return merged;
 }
 

@@ -34,6 +34,10 @@
   border-radius: 15px;
 }
 
+html[data-theme="dark"] .nn-page {
+  background: linear-gradient(135deg, #1a2230, #121820);
+}
+
 @media (min-width: 640px) {
   .nn-page { padding: 1.5rem; }
 }

@@ -165,3 +165,35 @@
     box-shadow: 0 0 0 100vw rgba(30, 42, 38, 0.4);
   }
 }
+
+html[data-theme="dark"] .sb-root {
+  background: #1e2634;
+  border-right-color: rgba(90, 105, 125, 0.45);
+}
+
+html[data-theme="dark"] .sb-scroll::-webkit-scrollbar-thumb {
+  background: #3a465c;
+}
+
+html[data-theme="dark"] .sb-logo-text {
+  color: #e8eef6;
+}
+
+html[data-theme="dark"] .sb-tagline,
+html[data-theme="dark"] .sb-nav-item {
+  color: #9aa8bc;
+}
+
+html[data-theme="dark"] .sb-nav-item:hover {
+  background: #2a3548;
+  color: #e8eef6;
+}
+
+html[data-theme="dark"] .sb-nav-item.active {
+  background: rgba(122, 155, 199, 0.16);
+  color: #b8cce8;
+}
+
+html[data-theme="dark"] .sb-actions {
+  border-top-color: rgba(90, 105, 125, 0.45);
+}

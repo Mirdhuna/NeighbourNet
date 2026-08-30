@@ -54,3 +54,54 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
+
+/* Dark palette tokens. Full surface overrides live in theme-dark.css
+   (imported last from App.jsx so they beat page-level hardcoded whites). */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --nn-bg-main: #0b1018;
+  --nn-card-bg: #1a2332;
+  --nn-card-solid: #1a2332;
+  --nn-surface-subtle: #141c28;
+  --nn-ink: #f4f7fb;
+  --nn-ink-soft: #c5d0de;
+  --nn-line: #3d4f68;
+  --nn-line-light: #2a384c;
+  --nn-primary: #8eb4e0;
+  --nn-primary-dark: #a8c8ee;
+  --nn-primary-soft: rgba(142, 180, 224, 0.2);
+  --nn-sage: #8fbfb0;
+  --nn-sage-soft: rgba(143, 191, 176, 0.18);
+  --nn-warm-accent: #e0b49a;
+  --nn-warm-soft: rgba(224, 180, 154, 0.18);
+  --nn-shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --nn-shadow-md: 0 12px 32px -8px rgba(0, 0, 0, 0.5);
+
+  --ad-bg: #0b1018;
+  --ad-card: #1a2332;
+  --ad-line: #3d4f68;
+  --ad-ink: #f4f7fb;
+  --ad-soft: #c5d0de;
+  --ad-blue: #8eb4e0;
+  --ad-blue-2: #6d93c2;
+  --ad-peach: #e0b49a;
+  --ad-green: #7ed083;
+
+  --st-bg: #0b1018;
+  --st-card: #1a2332;
+  --st-line: #3d4f68;
+  --st-ink: #f4f7fb;
+  --st-soft: #c5d0de;
+  --st-blue: #8eb4e0;
+  --st-blue-2: #6d93c2;
+  --st-peach: #e0b49a;
+  --st-peach-2: #e0b49a;
+
+  --nn-cream: #0b1018;
+  --nn-card: #1a2332;
+}
+
+html[data-theme="dark"] body {
+  color: var(--nn-ink);
+  background: var(--nn-bg-main);
+}

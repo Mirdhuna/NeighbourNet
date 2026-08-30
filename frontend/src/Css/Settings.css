@@ -497,6 +497,40 @@ body {
   background: #fff7f3;
 }
 
+html[data-theme="dark"] .st-icon-btn,
+html[data-theme="dark"] .st-outline-btn {
+  background: #1a2230;
+  color: var(--st-soft);
+}
+
+html[data-theme="dark"] .st-field input,
+html[data-theme="dark"] .st-dropdown select,
+html[data-theme="dark"] .st-switch-row,
+html[data-theme="dark"] .st-check-row,
+html[data-theme="dark"] .st-security-item,
+html[data-theme="dark"] .st-dropdown {
+  background: #1a2230;
+  color: var(--st-ink);
+}
+
+html[data-theme="dark"] .st-field input:focus,
+html[data-theme="dark"] .st-dropdown select:focus {
+  background: #243044;
+}
+
+html[data-theme="dark"] .st-kicker {
+  background: rgba(122, 155, 199, 0.18);
+  color: #b8cce8;
+}
+
+html[data-theme="dark"] .st-profile-avatar {
+  color: #d5e4f7;
+}
+
+html[data-theme="dark"] .st-danger-btn {
+  background: #2a1e1a;
+}
+
 @media (max-width: 768px) {
   .st-page {
     padding: 0.75rem;
