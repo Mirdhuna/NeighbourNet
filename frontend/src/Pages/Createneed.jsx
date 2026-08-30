@@ -8,7 +8,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar";
-import { addNeed } from "../data/Needsstore";
+import { apiFetch } from "../api";
 import "../Css/Needs.css";
 import "../Css/Needform.css";
 
@@ -34,32 +34,43 @@ export default function CreateNeed() {
     setImageName(file ? file.name : "");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
 
     if (!title.trim() || !description.trim() || !location.trim()) {
-      setError("Please fill in the title, description, and location before posting.");
+      setError(
+        "Please fill in the title, description, and location before posting."
+      );
       return;
     }
+  
     setError("");
     setSubmitting(true);
+  
+    try {
+      const data = await apiFetch("/api/needs", {
+        method: "POST",
+        body: JSON.stringify({
+          title: title.trim(),
+          description: description.trim(),
+          category,
+          urgency,
+          duration: duration.trim() || "Flexible",
+          location: location.trim(),
+          radius: Number(radius),
+          photo: null,
+          tags: [category],
+        }),
+      });
 
-    const newNeed = addNeed({
-      title: title.trim(),
-      description: description.trim(),
-      category,
-      urgency,
-      duration: duration.trim() || "Flexible",
-      location: location.trim(),
-      distance: 0,
-      tags: [category],
-    });
-
-    // Simulate a brief submit delay so the loading state is visible
-    setTimeout(() => {
+      navigate(`/needs/${data.id}`);
+    } catch (err) {
+      console.error("Failed to create need:", err);
+      setError(err.message || "Could not post the need.");
+    } finally {
       setSubmitting(false);
-      navigate(`/needs/${newNeed.id}`);
-    }, 400);
+    }
   };
 
   return (
@@ -169,11 +180,11 @@ export default function CreateNeed() {
             </label>
 
             <label className="nf-field">
-              <span className="nf-label">Photo (optional)</span>
-              <label className="nf-dropzone" htmlFor="nf-image-input">
-                <Camera size={22} />
-                <span>{imageName || "Click to upload a photo"}</span>
-              </label>
+            <span className="nf-label">Photo (optional)</span>
+            <label className="nf-dropzone" htmlFor="nf-image-input">
+              <Camera size={22} />
+              <span>{imageName || "Click to upload a photo"}</span>
+            </label>
               <input
                 id="nf-image-input"
                 type="file"

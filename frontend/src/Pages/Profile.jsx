@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   MapPin,
@@ -16,15 +16,13 @@ import {
   Clock3,
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar";
-import { getProfile, updateProfile } from "../data/Profilestore";
-import { getAllNeeds, removeNeed } from "../data/Needsstore";
-import { getAllOffers, removeOffer } from "../data/Offerstore";
-import { getBookmarkedListings } from "../data/Bookmarksstore";
+import { apiFetch } from "../api";
 import "../Css/Profile.css";
 
 const emptyForm = { name: "", bio: "", location: "", email: "", phone: "" };
 
 function formatJoined(ts) {
+  if (!ts) return "";
   return new Date(ts).toLocaleDateString(undefined, {
     month: "long",
     year: "numeric",
@@ -32,27 +30,42 @@ function formatJoined(ts) {
 }
 
 export default function Profile() {
-  const [profile, setProfile] = useState(getProfile());
+  const [profile, setProfile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [tab, setTab] = useState("needs");
+  const [myNeeds, setMyNeeds] = useState([]);
+  const [myOffers, setMyOffers] = useState([]);
+  const [bookmarksCount, setBookmarksCount] = useState(0);
+  const [error, setError] = useState("");
 
-  const [myNeeds, setMyNeeds] = useState(() =>
-    getAllNeeds().filter((n) => String(n.id).startsWith("local-"))
-  );
-  const [myOffers, setMyOffers] = useState(() =>
-    getAllOffers().filter((o) => String(o.id).startsWith("local-"))
-  );
-
-  const bookmarksCount = useMemo(() => getBookmarkedListings().length, []);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [me, needs, offers, bookmarks] = await Promise.all([
+          apiFetch("/api/profile"),
+          apiFetch("/api/needs/mine"),
+          apiFetch("/api/offers/mine"),
+          apiFetch("/api/bookmarks"),
+        ]);
+        setProfile(me);
+        setMyNeeds(needs || []);
+        setMyOffers(offers || []);
+        setBookmarksCount((bookmarks || []).length);
+      } catch (err) {
+        setError(err.message || "Could not load profile");
+      }
+    };
+    load();
+  }, []);
 
   const startEditing = () => {
     setForm({
       name: profile.name,
-      bio: profile.bio,
-      location: profile.location,
-      email: profile.email,
-      phone: profile.phone,
+      bio: profile.bio || "",
+      location: profile.location || "",
+      email: profile.email || "",
+      phone: profile.phone || "",
     });
     setIsEditing(true);
   };
@@ -61,34 +74,64 @@ export default function Profile() {
     setIsEditing(false);
   };
 
-  const saveEditing = (e) => {
+  const saveEditing = async (e) => {
     e.preventDefault();
-    const updated = updateProfile({
-      name: form.name.trim() || "You",
-      bio: form.bio.trim(),
-      location: form.location.trim(),
-      email: form.email.trim(),
-      phone: form.phone.trim(),
-    });
-    setProfile(updated);
-    setIsEditing(false);
+    try {
+      const updated = await apiFetch("/api/profile", {
+        method: "PATCH",
+        body: JSON.stringify({
+          name: form.name.trim() || "You",
+          bio: form.bio.trim(),
+          location: form.location.trim(),
+          email: form.email.trim() || undefined,
+          phone: form.phone.trim(),
+        }),
+      });
+      setProfile(updated);
+      setIsEditing(false);
+    } catch (err) {
+      setError(err.message || "Could not save profile");
+    }
   };
 
-  const handleDeleteNeed = (id) => {
+  const handleDeleteNeed = async (id) => {
     const confirmed = window.confirm("Delete this need? This can't be undone.");
     if (!confirmed) return;
-    removeNeed(id);
-    setMyNeeds((prev) => prev.filter((n) => n.id !== id));
+    try {
+      await apiFetch(`/api/needs/${id}`, { method: "DELETE" });
+      setMyNeeds((prev) => prev.filter((n) => n.id !== id));
+    } catch (err) {
+      setError(err.message || "Could not delete need");
+    }
   };
 
-  const handleDeleteOffer = (id) => {
+  const handleDeleteOffer = async (id) => {
     const confirmed = window.confirm("Delete this offer? This can't be undone.");
     if (!confirmed) return;
-    removeOffer(id);
-    setMyOffers((prev) => prev.filter((o) => o.id !== id));
+    try {
+      await apiFetch(`/api/offers/${id}`, { method: "DELETE" });
+      setMyOffers((prev) => prev.filter((o) => o.id !== id));
+    } catch (err) {
+      setError(err.message || "Could not delete offer");
+    }
   };
 
   const visibleListings = tab === "needs" ? myNeeds : myOffers;
+
+  if (!profile) {
+    return (
+      <div className="pf-page">
+        <div className="pf-shell">
+          <Sidebar tagline="Your NeighborNet profile" hideCreate />
+          <main className="pf-main">
+            <section className="pf-card pf-header">
+              <h1>{error || "Loading profile…"}</h1>
+            </section>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pf-page">

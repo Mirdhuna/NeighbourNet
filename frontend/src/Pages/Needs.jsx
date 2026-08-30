@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Search,
@@ -15,8 +15,8 @@ import {
   X,
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar";
-import { getAllNeeds } from "../data/Needsstore";
-import { isBookmarked, toggleBookmark } from "../data/Bookmarksstore";
+//import { getAllNeeds } from "../data/Needsstore";
+import { apiFetch } from "../api";
 import "../Css/Needs.css";
 
 const categories = ["All", "Medicine", "Transport", "Tools", "Household", "Education"];
@@ -32,56 +32,81 @@ export default function Needs() {
   const [viewMode, setViewMode] = useState("grid");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [allNeeds, setAllNeeds] = useState([]);
 
-  const allNeeds = getAllNeeds();
+  useEffect(() => {
+  const loadNeeds = async () => {
+    try {
+      setLoading(true);
+      setError("");
 
-  // Which needs are currently bookmarked, keyed by id. Seeded from
-  // bookmarksStore on first render, then kept in sync locally on toggle
-  // so the icon updates instantly without re-reading localStorage.
-  const [bookmarkedIds, setBookmarkedIds] = useState(() => {
-    const set = new Set();
-    allNeeds.forEach((n) => {
-      if (isBookmarked(n.id, "need")) set.add(n.id);
-    });
-    return set;
-  });
+      const params = new URLSearchParams({
+        category,
+        urgency,
+        verified_only: verifiedOnly,
+        radius,
+        sort: sortBy,
+      });
 
-  const handleToggleBookmark = (e, need) => {
+      if (query.trim()) {
+        params.append("q", query.trim());
+      }
+
+      const data = await apiFetch(`/api/needs?${params.toString()}`);
+      setAllNeeds(data);
+    } catch (err) {
+      console.error("Failed to load needs:", err);
+      setError(err.message || "Could not connect to the server");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const timer = setTimeout(loadNeeds, 300);
+
+  return () => clearTimeout(timer);
+}, [query, category, urgency, verifiedOnly, radius, sortBy]);
+
+  const [bookmarkedIds, setBookmarkedIds] = useState(() => new Set());
+
+  useEffect(() => {
+    const loadBookmarks = async () => {
+      try {
+        const rows = await apiFetch("/api/bookmarks");
+        const next = new Set();
+        rows.forEach((item) => {
+          if (item.bookmarkType === "need") next.add(item.id);
+        });
+        setBookmarkedIds(next);
+      } catch {
+        // bookmarks are optional for browsing
+      }
+    };
+    loadBookmarks();
+  }, [allNeeds]);
+
+  const handleToggleBookmark = async (e, need) => {
     e.preventDefault();
     e.stopPropagation();
-    const nowBookmarked = toggleBookmark(need.id, "need");
-    setBookmarkedIds((prev) => {
-      const next = new Set(prev);
-      if (nowBookmarked) next.add(need.id);
-      else next.delete(need.id);
-      return next;
-    });
+    try {
+      const result = await apiFetch("/api/bookmarks/toggle", {
+        method: "POST",
+        body: JSON.stringify({ item_id: need.id, item_type: "need" }),
+      });
+      setBookmarkedIds((prev) => {
+        const next = new Set(prev);
+        if (result.bookmarked) next.add(need.id);
+        else next.delete(need.id);
+        return next;
+      });
+    } catch (err) {
+      setError(err.message || "Could not update bookmark");
+    }
   };
 
   const filteredNeeds = useMemo(() => {
-    let result = [...allNeeds];
-
-    if (query.trim()) {
-      const q = query.toLowerCase();
-      result = result.filter(
-        (item) =>
-          item.title.toLowerCase().includes(q) ||
-          item.description.toLowerCase().includes(q) ||
-          item.location.toLowerCase().includes(q) ||
-          item.requesterName.toLowerCase().includes(q)
-      );
-    }
-
-    if (category !== "All") result = result.filter((item) => item.category === category);
-    if (urgency !== "All") result = result.filter((item) => item.urgency === urgency);
-    if (verifiedOnly) result = result.filter((item) => item.verified);
-    result = result.filter((item) => item.distance <= Number(radius));
-
-    if (sortBy === "distance") result.sort((a, b) => a.distance - b.distance);
-    else result.sort((a, b) => (a.id < b.id ? 1 : -1));
-
-    return result;
-  }, [allNeeds, query, category, urgency, verifiedOnly, radius, sortBy]);
+  return [...allNeeds];
+}, [allNeeds]);
 
   const stats = {
     total: filteredNeeds.length,
@@ -295,12 +320,12 @@ export default function Needs() {
                       <p>{need.description}</p>
 
                       <div className="nn-meta-row">
-                        <span><MapPin size={13} /> {need.location} • {need.distance} km</span>
+                        <span><MapPin size={13} /> {need.location}{need.distance != null ? ` • ${need.distance} km` : ""}</span>
                         <span><Clock3 size={13} /> {need.duration}</span>
                       </div>
 
                       <div className="nn-tags">
-                        {need.tags.map((tag) => (
+                        {(need.tags || []).map((tag) => (
                           <span key={tag} className="nn-tag">{tag}</span>
                         ))}
                       </div>

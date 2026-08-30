@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Hammer, BookOpen, Bike, Umbrella } from "lucide-react";
+import { API_BASE } from "../api";
 import "../Css/Login.css";
 import {FcGoogle} from "react-icons/fc";
 import {FaApple} from "react-icons/fa";
@@ -34,24 +35,63 @@ export default function NeighbourNetLogin() {
     return Object.keys(next).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+  
     if (!validate()) return;
+  
     setLoading(true);
-
-    // Simulate an auth call. Swap this timeout out for a real API call
-    // when the backend is wired up — on success, persist the session and
-    // navigate into the app.
-    setTimeout(() => {
-      try {
-        const storage = remember ? window.localStorage : window.sessionStorage;
-        storage.setItem("neighbornet_session", JSON.stringify({ email, loggedInAt: Date.now() }));
-      } catch {
-        // storage unavailable (e.g. private mode) — still let the user in
+    setErrors({});
+  
+    try {
+      const response = await fetch(
+        `${API_BASE}/api/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        }
+      );
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.detail || "Invalid email or password");
       }
-      setLoading(false);
+  
+      const storage = remember
+        ? window.localStorage
+        : window.sessionStorage;
+  
+      // Save the JWT token
+      storage.setItem("access_token", data.access_token);
+  
+      // Save your existing frontend session
+      storage.setItem(
+        "neighbornet_session",
+        JSON.stringify({
+          email,
+          loggedInAt: Date.now(),
+        })
+      );
+  
       navigate("/dashboard");
-    }, 1400);
+  
+    } catch (error) {
+      console.error("Login failed:", error);
+  
+      setErrors({
+        general: error.message || "Login failed. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -171,6 +211,7 @@ export default function NeighbourNetLogin() {
               {loading ? "Signing in…" : "Sign in"}
               {!loading && <ArrowRight size={16} />}
             </button>
+            {errors.general && <p className="nn-error-text">{errors.general}</p>}
           </form>
 
           <div className="nn-divider-row">
