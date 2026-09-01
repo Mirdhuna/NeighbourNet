@@ -1,37 +1,37 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import {
   User,
-  Globe,
-  Edit3,
-  Camera,
-  ChevronRight,
+  Bell,
+  Moon,
+  Sun,
+  Shield,
   Save,
   Trash2,
   ToggleLeft,
   ToggleRight,
   Check,
+  LogOut,
+  AlertCircle,
 } from "lucide-react";
-
 import Sidebar from "../Components/Sidebar";
 import { apiFetch, clearAuthStorage } from "../api";
 import { useTheme } from "../context/ThemeContext";
 import "../Css/Settings.css";
+
+const SETTINGS_KEY = "neighbornet_settings";
+const SESSION_KEY = "neighbornet_session";
 
 const defaultSettings = {
   name: "",
   username: "",
   email: "",
   phone: "",
+  address: "",
   darkMode: false,
   emailAlerts: true,
   pushAlerts: true,
-  smsAlerts: false,
-  profilePublic: true,
-  language: "English",
-  visibility: "Everyone",
+  emergencyAlerts: true,
 };
 
 export default function Settings() {
@@ -39,65 +39,100 @@ export default function Settings() {
   const { darkMode, setDarkMode } = useTheme();
 
   const [settings, setSettings] = useState(defaultSettings);
-
   const [form, setForm] = useState({
     name: "",
     username: "",
     email: "",
     phone: "",
+    address: "",
   });
 
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
+  // Load Initial Settings & Session
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await apiFetch("/api/settings");
+        let initialData = { ...defaultSettings };
 
-        setSettings({
-          ...defaultSettings,
-          ...data,
-          darkMode: typeof data.darkMode === "boolean" ? data.darkMode : darkMode,
-        });
-
-        if (typeof data.darkMode === "boolean") {
-          setDarkMode(data.darkMode);
+        // 1. Read from local session
+        const savedSession = localStorage.getItem(SESSION_KEY);
+        if (savedSession) {
+          const parsed = JSON.parse(savedSession);
+          if (parsed.user) {
+            initialData = { ...initialData, ...parsed.user };
+          }
         }
 
+        // 2. Read from local settings
+        const savedSettings = localStorage.getItem(SETTINGS_KEY);
+        if (savedSettings) {
+          const parsed = JSON.parse(savedSettings);
+          initialData = { ...initialData, ...parsed };
+        }
+
+        // 3. Try server settings
+        try {
+          const data = await apiFetch("/api/settings");
+          if (data && typeof data === "object") {
+            initialData = { ...initialData, ...data };
+          }
+        } catch {
+          // offline fallback
+        }
+
+        setSettings({
+          ...initialData,
+          darkMode: typeof initialData.darkMode === "boolean" ? initialData.darkMode : darkMode,
+        });
+
         setForm({
-          name: data.name || "",
-          username: data.username || "",
-          email: data.email || "",
-          phone: data.phone || "",
+          name: initialData.name || "",
+          username: initialData.username || "",
+          email: initialData.email || "",
+          phone: initialData.phone || "",
+          address: initialData.address || "",
         });
       } catch (err) {
-        setError(err.message || "Could not load settings");
+        setError("Loaded settings from local storage.");
       }
     };
 
     load();
   }, []);
 
-  const patch = async (partial) => {
+  // Patch single setting (Toggle)
+  const patchSetting = async (partial) => {
     try {
       setError("");
+      const nextSettings = { ...settings, ...partial };
+      setSettings(nextSettings);
 
-      const updated = await apiFetch("/api/settings", {
+      // Persist in localStorage
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(nextSettings));
+
+      // Handle Dark Mode
+      if (typeof partial.darkMode === "boolean") {
+        setDarkMode(partial.darkMode);
+        if (partial.darkMode) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        } else {
+          document.documentElement.removeAttribute("data-theme");
+        }
+      }
+
+      // Sync with API
+      await apiFetch("/api/settings", {
         method: "PATCH",
         body: JSON.stringify(partial),
-      });
+      }).catch(() => null);
 
-      setSettings({
-        ...defaultSettings,
-        ...updated,
-      });
-
-      if (typeof updated.darkMode === "boolean") {
-        setDarkMode(updated.darkMode);
-      }
-    } catch (err) {
-      setError(err.message || "Could not update settings");
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch {
+      setError("Saved locally.");
     }
   };
 
@@ -108,382 +143,325 @@ export default function Settings() {
     }));
   };
 
-  const handleSave = async () => {
+  // Save profile changes
+  const handleSave = async (e) => {
+    if (e) e.preventDefault();
     try {
+      setSaving(true);
       setError("");
 
-      const updated = await apiFetch("/api/settings", {
-        method: "PATCH",
-        body: JSON.stringify({
-          name: form.name,
-          username: form.username,
-          email: form.email,
-          phone: form.phone,
-        }),
-      });
+      const updateData = {
+        name: form.name.trim(),
+        username: form.username.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        address: form.address.trim(),
+      };
 
-      setSettings({
-        ...defaultSettings,
-        ...updated,
-      });
+      // 1. Update local state
+      setSettings((prev) => ({ ...prev, ...updateData }));
+
+      // 2. Persist in session
+      const existingSession = JSON.parse(localStorage.getItem(SESSION_KEY) || "{}");
+      localStorage.setItem(
+        SESSION_KEY,
+        JSON.stringify({
+          ...existingSession,
+          user: {
+            ...(existingSession.user || {}),
+            ...updateData,
+          },
+        })
+      );
+
+      // 3. Persist in settings
+      localStorage.setItem(
+        SETTINGS_KEY,
+        JSON.stringify({ ...settings, ...updateData })
+      );
+
+      // 4. Send to backend
+      await apiFetch("/api/settings", {
+        method: "PATCH",
+        body: JSON.stringify(updateData),
+      }).catch(() => null);
 
       setSaved(true);
-
-      setTimeout(() => {
-        setSaved(false);
-      }, 2000);
+      setTimeout(() => setSaved(false), 2500);
     } catch (err) {
-      setError(err.message || "Could not save settings");
+      setError(err.message || "Failed to save profile changes.");
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleDeleteAccount = async () => {
-    const confirmed = window.confirm(
-      "This will deactivate your account. You will need to contact support to restore it. Continue?"
-    );
-
-    if (!confirmed) return;
-
-    try {
-      await apiFetch("/api/account/deactivate", {
-        method: "POST",
-      });
-    } catch {
-      // Clear the local session even if the API request fails.
+  // Logout
+  const handleLogout = () => {
+    if (window.confirm("Are you sure you want to sign out?")) {
+      clearAuthStorage();
+      localStorage.removeItem(SESSION_KEY);
+      navigate("/");
     }
+  };
 
-    clearAuthStorage();
-
-    navigate("/");
+  // Clear cache
+  const handleClearCache = () => {
+    if (window.confirm("Clear locally cached search history and temporary items?")) {
+      sessionStorage.clear();
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    }
   };
 
   return (
     <div className="st-page">
       <div className="st-shell">
-        <Sidebar tagline="Hyperlocal Community Network" />
+        {/* Sticky Sidebar */}
+        <Sidebar onLogout={handleLogout} />
 
+        {/* Main Content Area */}
         <main className="st-main">
-          <section className="st-header">
-            <div>
-              <div className="st-kicker">Account</div>
-
-              <h1>Settings</h1>
-
-              <p>
-                Customize your profile, notifications, privacy, and app
-                preferences.
+          {/* Header Banner */}
+          <div className="st-hero">
+            <div className="st-hero-left">
+              <h1 className="st-hero-title">Settings</h1>
+              <p className="st-hero-desc">
+                Manage your profile, preferences, and community visibility.
               </p>
-
-              {error && <p>{error}</p>}
             </div>
 
-            <button
-              className="st-save-btn"
-              type="button"
-              onClick={handleSave}
-            >
-              {saved ? <Check size={16} /> : <Save size={16} />}
+            {saved && (
+              <div className="st-toast-saved">
+                <Check size={16} />
+                <span>Settings saved!</span>
+              </div>
+            )}
 
-              {saved ? "Saved" : "Save Changes"}
-            </button>
+            {error && (
+              <div className="st-toast-error">
+                <AlertCircle size={16} />
+                <span>{error}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Profile Card */}
+          <section className="st-card">
+            <div className="st-card-title-row">
+              <div className="st-card-icon-wrap">
+                <User size={18} />
+              </div>
+              <div>
+                <h3 className="st-section-title">Profile Information</h3>
+                <p className="st-section-desc">Update your display name, username, and contact information.</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSave} className="st-form-grid">
+              <div className="st-field">
+                <label className="st-field-label">Full Name</label>
+                <input
+                  type="text"
+                  className="st-text-input"
+                  value={form.name}
+                  onChange={(e) => handleFieldChange("name", e.target.value)}
+                  placeholder="Your Name"
+                />
+              </div>
+
+              <div className="st-field">
+                <label className="st-field-label">Username</label>
+                <div className="st-input-at-wrap">
+                  <span className="st-at-sign">@</span>
+                  <input
+                    type="text"
+                    className="st-text-input st-input-with-at"
+                    value={form.username}
+                    onChange={(e) => handleFieldChange("username", e.target.value)}
+                    placeholder="username"
+                  />
+                </div>
+              </div>
+
+              <div className="st-field">
+                <label className="st-field-label">Email Address</label>
+                <input
+                  type="email"
+                  className="st-text-input"
+                  value={form.email}
+                  onChange={(e) => handleFieldChange("email", e.target.value)}
+                  placeholder="name@example.com"
+                />
+              </div>
+
+              <div className="st-field">
+                <label className="st-field-label">Phone Number</label>
+                <input
+                  type="tel"
+                  className="st-text-input"
+                  value={form.phone}
+                  onChange={(e) => handleFieldChange("phone", e.target.value)}
+                  placeholder="Phone number"
+                />
+              </div>
+
+              <div className="st-field st-field-full">
+                <label className="st-field-label">Neighborhood / Area</label>
+                <input
+                  type="text"
+                  className="st-text-input"
+                  value={form.address}
+                  onChange={(e) => handleFieldChange("address", e.target.value)}
+                  placeholder="e.g. Singanallur, Coimbatore"
+                />
+              </div>
+
+              <div className="st-field-full st-btn-row">
+                <button
+                  type="submit"
+                  className="st-btn-save"
+                  disabled={saving}
+                >
+                  <Save size={16} />
+                  <span>{saving ? "Saving..." : "Save Profile Changes"}</span>
+                </button>
+              </div>
+            </form>
           </section>
 
-          <section className="st-grid">
-            {/* Profile */}
-            <div className="st-card st-profile-card">
-              <div className="st-card-head">
-                <h2>Profile</h2>
+          {/* Notifications Card */}
+          <section className="st-card">
+            <div className="st-card-title-row">
+              <div className="st-card-icon-wrap">
+                <Bell size={18} />
+              </div>
+              <div>
+                <h3 className="st-section-title">Notifications & Alerts</h3>
+                <p className="st-section-desc">Configure what updates you receive in real-time.</p>
+              </div>
+            </div>
 
+            <div className="st-toggles-stack">
+              {/* Push Alerts */}
+              <div className="st-toggle-row">
+                <div>
+                  <h4 className="st-toggle-label">Push Notifications</h4>
+                  <p className="st-toggle-sub">Receive instant alerts when someone responds to your posts.</p>
+                </div>
                 <button
-                  className="st-icon-btn"
                   type="button"
-                  aria-label="Edit profile"
+                  className="st-toggle-button"
+                  onClick={() => patchSetting({ pushAlerts: !settings.pushAlerts })}
                 >
-                  <Edit3 size={16} />
+                  {settings.pushAlerts ? (
+                    <ToggleRight size={32} className="text-blue" />
+                  ) : (
+                    <ToggleLeft size={32} className="text-muted" />
+                  )}
                 </button>
               </div>
 
-              <div className="st-profile-top">
-                <div className="st-profile-avatar">
-                  {(form.name || "N").charAt(0).toUpperCase()}
-
-                  <button
-                    className="st-camera-btn"
-                    type="button"
-                    aria-label="Change profile picture"
-                  >
-                    <Camera size={14} />
-                  </button>
+              {/* Emergency Alerts */}
+              <div className="st-toggle-row">
+                <div>
+                  <h4 className="st-toggle-label">🚨 Emergency Need Alerts</h4>
+                  <p className="st-toggle-sub">Get notified when an urgent request is posted in your area.</p>
                 </div>
-
-                <div className="st-profile-meta">
-                  <strong>{form.name || "You"}</strong>
-
-                  <span>Active since 2026</span>
-                </div>
+                <button
+                  type="button"
+                  className="st-toggle-button"
+                  onClick={() => patchSetting({ emergencyAlerts: !settings.emergencyAlerts })}
+                >
+                  {settings.emergencyAlerts ? (
+                    <ToggleRight size={32} className="text-blue" />
+                  ) : (
+                    <ToggleLeft size={32} className="text-muted" />
+                  )}
+                </button>
               </div>
 
-              <div className="st-field-grid">
-                <label className="st-field">
-                  <span>Full Name</span>
+              {/* Email Alerts */}
+              <div className="st-toggle-row">
+                <div>
+                  <h4 className="st-toggle-label">Email Notifications</h4>
+                  <p className="st-toggle-sub">Receive weekly community summaries via email.</p>
+                </div>
+                <button
+                  type="button"
+                  className="st-toggle-button"
+                  onClick={() => patchSetting({ emailAlerts: !settings.emailAlerts })}
+                >
+                  {settings.emailAlerts ? (
+                    <ToggleRight size={32} className="text-blue" />
+                  ) : (
+                    <ToggleLeft size={32} className="text-muted" />
+                  )}
+                </button>
+              </div>
+            </div>
+          </section>
 
-                  <input
-                    type="text"
-                    value={form.name}
-                    onChange={(e) =>
-                      handleFieldChange("name", e.target.value)
-                    }
-                  />
-                </label>
-
-                <label className="st-field">
-                  <span>Username</span>
-
-                  <input
-                    type="text"
-                    value={form.username}
-                    onChange={(e) =>
-                      handleFieldChange("username", e.target.value)
-                    }
-                  />
-                </label>
-
-                <label className="st-field">
-                  <span>Email</span>
-
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={(e) =>
-                      handleFieldChange("email", e.target.value)
-                    }
-                  />
-                </label>
-
-                <label className="st-field">
-                  <span>Phone</span>
-
-                  <input
-                    type="text"
-                    value={form.phone}
-                    onChange={(e) =>
-                      handleFieldChange("phone", e.target.value)
-                    }
-                  />
-                </label>
+          {/* Theme & Appearance */}
+          <section className="st-card">
+            <div className="st-card-title-row">
+              <div className="st-card-icon-wrap">
+                {darkMode ? <Moon size={18} /> : <Sun size={18} />}
+              </div>
+              <div>
+                <h3 className="st-section-title">Appearance</h3>
+                <p className="st-section-desc">Toggle between light and dark mode.</p>
               </div>
             </div>
 
-            {/* Preferences */}
-            <div className="st-card st-pref-card">
-              <div className="st-card-head">
-                <h2>Preferences</h2>
+            <div className="st-toggle-row">
+              <div>
+                <h4 className="st-toggle-label">Dark Mode</h4>
+                <p className="st-toggle-sub">Adjust theme for comfortable viewing.</p>
               </div>
+              <button
+                type="button"
+                className="st-toggle-button"
+                onClick={() => patchSetting({ darkMode: !darkMode })}
+              >
+                {darkMode ? (
+                  <ToggleRight size={32} className="text-blue" />
+                ) : (
+                  <ToggleLeft size={32} className="text-muted" />
+                )}
+              </button>
+            </div>
+          </section>
 
-              <div className="st-switch-list">
-                <div className="st-switch-row">
-                  <div>
-                    <strong>Dark Mode</strong>
-
-                    <p>Switch between light and dark appearance</p>
-                  </div>
-
-                  <button
-                    className={`st-switch ${
-                      darkMode ? "on" : ""
-                    }`}
-                    onClick={() => {
-                      const next = !darkMode;
-                      setDarkMode(next);
-                      setSettings((prev) => ({ ...prev, darkMode: next }));
-                      patch({ darkMode: next });
-                    }}
-                    type="button"
-                    aria-label="Toggle dark mode"
-                  >
-                    {darkMode ? (
-                      <ToggleRight size={22} />
-                    ) : (
-                      <ToggleLeft size={22} />
-                    )}
-                  </button>
-                </div>
-
-                <div className="st-switch-row">
-                  <div>
-                    <strong>Public Profile</strong>
-
-                    <p>Allow others to view your profile</p>
-                  </div>
-
-                  <button
-                    className={`st-switch ${
-                      settings.profilePublic ? "on" : ""
-                    }`}
-                    onClick={() =>
-                      patch({
-                        profilePublic: !settings.profilePublic,
-                      })
-                    }
-                    type="button"
-                  >
-                    {settings.profilePublic ? (
-                      <ToggleRight size={22} />
-                    ) : (
-                      <ToggleLeft size={22} />
-                    )}
-                  </button>
-                </div>
-
-                <label className="st-dropdown">
-                  <span>
-                    <Globe size={14} />
-                    Language
-                  </span>
-
-                  <select
-                    value={settings.language}
-                    onChange={(e) =>
-                      patch({
-                        language: e.target.value,
-                      })
-                    }
-                  >
-                    <option>English</option>
-                    <option>தமிழ்</option>
-                    <option>Hindi</option>
-                  </select>
-                </label>
-
-                <label className="st-dropdown">
-                  <span>
-                    <User size={14} />
-                    Profile Visibility
-                  </span>
-
-                  <select
-                    value={settings.visibility}
-                    onChange={(e) =>
-                      patch({
-                        visibility: e.target.value,
-                      })
-                    }
-                  >
-                    <option>Everyone</option>
-                    <option>Only Friends</option>
-                    <option>Only Me</option>
-                  </select>
-                </label>
+          {/* Account Privacy & Actions */}
+          <section className="st-card">
+            <div className="st-card-title-row">
+              <div className="st-card-icon-wrap">
+                <Shield size={18} />
+              </div>
+              <div>
+                <h3 className="st-section-title">Account Actions</h3>
+                <p className="st-section-desc">Manage session storage and sign out.</p>
               </div>
             </div>
 
-            {/* Notifications */}
-            <div className="st-card st-notify-card">
-              <div className="st-card-head">
-                <h2>Notifications</h2>
-              </div>
+            <div className="st-actions-list">
+              <button
+                type="button"
+                className="st-action-item-btn"
+                onClick={handleClearCache}
+              >
+                <Trash2 size={16} className="text-orange" />
+                <span>Clear Local Cache</span>
+              </button>
 
-              <div className="st-check-list">
-                <label className="st-check-row">
-                  <span>Email Alerts</span>
-
-                  <input
-                    type="checkbox"
-                    checked={settings.emailAlerts}
-                    onChange={() =>
-                      patch({
-                        emailAlerts: !settings.emailAlerts,
-                      })
-                    }
-                  />
-                </label>
-
-                <label className="st-check-row">
-                  <span>Push Notifications</span>
-
-                  <input
-                    type="checkbox"
-                    checked={settings.pushAlerts}
-                    onChange={() =>
-                      patch({
-                        pushAlerts: !settings.pushAlerts,
-                      })
-                    }
-                  />
-                </label>
-
-                <label className="st-check-row">
-                  <span>SMS Alerts</span>
-
-                  <input
-                    type="checkbox"
-                    checked={settings.smsAlerts}
-                    onChange={() =>
-                      patch({
-                        smsAlerts: !settings.smsAlerts,
-                      })
-                    }
-                  />
-                </label>
-              </div>
-            </div>
-
-            {/* Security */}
-            <div className="st-card st-security-card">
-              <div className="st-card-head">
-                <h2>Security</h2>
-              </div>
-
-              <div className="st-security-list">
-                <div className="st-security-item">
-                  <div>
-                    <strong>Password</strong>
-
-                    <p>Change your account password</p>
-                  </div>
-
-                  <button
-                    className="st-outline-btn"
-                    type="button"
-                    aria-label="Change password"
-                  >
-                    <ChevronRight size={16} />
-                  </button>
-                </div>
-
-                <div className="st-security-item">
-                  <div>
-                    <strong>Privacy</strong>
-
-                    <p>Manage who can see your activity</p>
-                  </div>
-
-                  <button
-                    className="st-outline-btn"
-                    type="button"
-                    aria-label="Manage privacy"
-                  >
-                    <ChevronRight size={16} />
-                  </button>
-                </div>
-
-                <div className="st-security-item danger">
-                  <div>
-                    <strong>Delete Account</strong>
-
-                    <p>Permanently delete your account data</p>
-                  </div>
-
-                  <button
-                    className="st-danger-btn"
-                    type="button"
-                    onClick={handleDeleteAccount}
-                    aria-label="Delete account"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
+              <button
+                type="button"
+                className="st-action-item-btn text-danger"
+                onClick={handleLogout}
+              >
+                <LogOut size={16} />
+                <span>Sign Out</span>
+              </button>
             </div>
           </section>
         </main>

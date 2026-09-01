@@ -11,7 +11,6 @@ import {
   Shield,
   Plus,
   LogOut,
-  X,
   Sun,
   Moon,
 } from "lucide-react";
@@ -30,141 +29,112 @@ const navItems = [
   { to: "/admin", label: "Admin", icon: Shield },
 ];
 
-/**
- * Shared app sidebar across all pages.
- */
 export default function Sidebar({
   tagline = "Hyperlocal Community Network",
-  top,
-  extra,
   createTo,
   hideCreate = false,
-  isOpen = false,
-  onClose,
   onLogout,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { darkMode, setDarkMode } = useTheme();
 
-  const isNeedsRoute = location.pathname.startsWith("/needs");
   const isOffersRoute = location.pathname.startsWith("/offers");
-  const isNeedsOrOffers = isNeedsRoute || isOffersRoute;
 
-  // The create button is only available in Needs and Offers sections
-  const showCreateBtn = !hideCreate && (createTo !== undefined ? true : isNeedsOrOffers);
-  const targetCreateTo = createTo || (isOffersRoute ? "/offers/new" : "/needs/new");
-  const createLabel = createTo
-    ? createTo.includes("offer")
-      ? "Create Offer"
-      : "Create Need"
-    : isOffersRoute
-    ? "Create Offer"
-    : "Create Need";
+  // Navigates to /needs/new or /offers/new
+  const createPath = createTo || (isOffersRoute ? "/offers/new" : "/needs/new");
+  const createLabel = isOffersRoute ? "+ Create Offer" : "+ Create Need";
 
-  const { darkMode, toggleTheme } = useTheme();
+  const handleLogoutClick = () => {
+    if (onLogout) {
+      onLogout();
+    } else if (window.confirm("Are you sure you want to log out?")) {
+      clearAuthStorage();
+      localStorage.removeItem("neighbornet_session");
+      navigate("/");
+    }
+  };
 
-  const handleLogout = () => {
-    clearAuthStorage();
-
-    if (onLogout) onLogout();
-    else navigate("/");
+  const handleToggleTheme = () => {
+    const next = !darkMode;
+    setDarkMode(next);
+    if (next) {
+      document.documentElement.setAttribute("data-theme", "dark");
+      localStorage.setItem("neighbornet_theme", "dark");
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+      localStorage.setItem("neighbornet_theme", "light");
+    }
   };
 
   return (
-    <>
-      {/* Mobile backdrop */}
-      {isOpen && <div className="sb-backdrop" onClick={onClose} />}
-
-      <aside className={`sb-root ${isOpen ? "sb-open" : ""}`}>
-        <div className="sb-scroll">
-          <div className="sb-top">
-            <div className="sb-logo-row">
-              <div className="sb-logo-mark">
-                <span>N</span>
-              </div>
-              <div className="sb-logo-info">
-                <div className="sb-logo-text">NeighborNet</div>
-                {tagline && <div className="sb-tagline">{tagline}</div>}
-              </div>
-              {onClose && (
-                <button
-                  type="button"
-                  className="sb-close-btn"
-                  onClick={onClose}
-                  aria-label="Close sidebar"
-                >
-                  <X size={18} />
-                </button>
-              )}
-            </div>
-
-            {top}
-          </div>
-
-          <nav className="sb-nav">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  className={({ isActive }) =>
-                    `sb-nav-item ${isActive ? "active" : ""}`
-                  }
-                  onClick={() => {
-                    if (onClose) onClose();
-                  }}
-                >
-                  <Icon size={17} />
-                  <span>{item.label}</span>
-                </NavLink>
-              );
-            })}
-          </nav>
-
-          {extra}
-        </div>
-
-        <div className="sb-actions">
-          {showCreateBtn && (
-            <button
-              type="button"
-              className="sb-create-btn"
-              onClick={() => {
-                if (onClose) onClose();
-                navigate(targetCreateTo);
-              }}
-            >
-              <Plus size={16} />
-              {createLabel}
-            </button>
-          )}
-
-          <div className="sb-bottom-row">
-            <button
-              type="button"
-              className="sb-theme-btn"
-              onClick={toggleTheme}
-              title={`Switch to ${darkMode ? "Light" : "Dark"} Mode`}
-              aria-label={`Switch to ${darkMode ? "Light" : "Dark"} Mode`}
-            >
-              {darkMode ? <Sun size={16} /> : <Moon size={16} />}
-              <span>{darkMode ? "Light Mode" : "Dark Mode"}</span>
-            </button>
-
-            <button
-              type="button"
-              className="sb-logout-btn"
-              onClick={handleLogout}
-              title="Logout"
-              aria-label="Logout"
-            >
-              <LogOut size={16} />
-              <span>Logout</span>
-            </button>
+    <aside className="sb-root">
+      {/* Top Section */}
+      <div className="sb-top">
+        {/* Logo */}
+        <div className="sb-logo-row">
+          <div className="sb-logo-mark">N</div>
+          <div className="sb-logo-info">
+            <span className="sb-logo-text">NeighborNet</span>
+            <span className="sb-logo-tagline">{tagline}</span>
           </div>
         </div>
-      </aside>
-    </>
+
+        {/* Navigation Links */}
+        <nav className="sb-nav">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) =>
+                  `sb-nav-item ${isActive ? "active" : ""}`
+                }
+              >
+                <Icon size={18} />
+                <span>{item.label}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Bottom Actions */}
+      <div className="sb-bottom">
+        {/* Create Button */}
+        {!hideCreate && (
+          <button
+            type="button"
+            className="sb-create-btn"
+            onClick={() => navigate(createPath)}
+          >
+            <Plus size={17} />
+            <span>{createLabel}</span>
+          </button>
+        )}
+
+        {/* Theme & Logout */}
+        <div className="sb-footer-row">
+          <button
+            type="button"
+            className="sb-theme-btn"
+            onClick={handleToggleTheme}
+          >
+            {darkMode ? <Sun size={15} /> : <Moon size={15} />}
+            <span>{darkMode ? "Light" : "Dark"}</span>
+          </button>
+
+          <button
+            type="button"
+            className="sb-logout-btn"
+            onClick={handleLogoutClick}
+          >
+            <LogOut size={15} />
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
+    </aside>
   );
 }

@@ -23,18 +23,26 @@ function App() {
           <Route path="/" element={<NeighbourNetLogin />} />
           <Route path="/login" element={<NeighbourNetLogin />} />
           <Route path="/dashboard" element={<NeighbourNetDashboard />} />
-          <Route path="/needs" element={<Needs/>}/>
-          <Route path="/needs/new" element={<CreateNeed/>}/>
+          
+          {/* Needs Routes */}
+          <Route path="/needs" element={<Needs />} />
+          <Route path="/needs/new" element={<CreateNeed />} />
+          <Route path="/createneed" element={<CreateNeed />} />
           <Route path="/needs/:id" element={<NeedDetail />} />
-          <Route path="/offers" element={<Offers/>}/>
-          <Route path="/offers/:id" element={<OfferDetail/>}/>
-          <Route path="/offers/new" element={<CreateOffer/>}/>
-          <Route path="/messages" element={<Messages/>}/>
-          <Route path="/messages/:id" element={<Messages/>}/>
-          <Route path="/bookmarks" element={<Bookmarks/>}/>
-          <Route path="/profile" element={<Profile/>}/>
-          <Route path="/settings" element={<Settings/>}/>
-          <Route path="/admin" element={<Admin/>}/>
+          
+          {/* Offers Routes */}
+          <Route path="/offers" element={<Offers />} />
+          <Route path="/offers/new" element={<CreateOffer />} />
+          <Route path="/createoffer" element={<CreateOffer />} />
+          <Route path="/offers/:id" element={<OfferDetail />} />
+          
+          {/* Messages & Other Pages */}
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/messages/:id" element={<Messages />} />
+          <Route path="/bookmarks" element={<Bookmarks />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
